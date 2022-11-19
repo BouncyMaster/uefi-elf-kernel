@@ -9,11 +9,7 @@ EFI_STATUS efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable)
 	SystemTable->ConOut->OutputString(SystemTable->ConOut, L"Testing...\r\n");
 
 	// We use this while loop to hang.
-	while(1){};
+	//while(1){};
 
-	/*
-	 * The EFI needs to have a 0 ( or EFI_SUCCESS ) in order to know 
-	 * everything is ok.
-	 */
 	return EFI_SUCCESS;
 }
