@@ -18,7 +18,7 @@
 #define TEST_SCREEN_PRIMARY_COLOUR      0x00FF4000
 #define TEST_SCREEN_SECONDARY_COLOUR    0x00FF80BF
 
-#define ERR_FIND_MODE L"graphics:find_mode()"
+#define ERR_FIND_MODE L"graphics:find_mode()\r\n"
 
 /*
  * @brief Finds a video mode.
@@ -44,12 +44,12 @@ find_mode(EFI_GRAPHICS_OUTPUT_PROTOCOL * const protocol,
 	for (UINT32 i = 0; i < protocol->MaxMode; i++){
 		status = protocol->QueryMode(protocol, i, &size, &modeInfo);
 		if (EFI_ERROR(status))
-			err_handle(status, sizeof(ERR_FIND_MODE), ERR_FIND_MODE);
+			err_handle(status, ERR_FIND_MODE);
 
 		if (modeInfo->HorizontalResolution == targetWidth &&
 			modeInfo->VerticalResolution == targetHeight &&
 			modeInfo->PixelFormat == targetPixelFormat)
 				return i;
 	}
-	err_handle(EFI_UNSUPPORTED, sizeof(ERR_FIND_MODE), ERR_FIND_MODE);
+	err_handle(EFI_UNSUPPORTED, ERR_FIND_MODE);
 }

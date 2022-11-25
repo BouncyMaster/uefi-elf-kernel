@@ -3,8 +3,8 @@
 
 #include <efi.h>
 
-void err_handle_init(EFI_HANDLE handle, EFI_SYSTEM_TABLE *table);
+void err_handle_init(EFI_HANDLE image, EFI_SYSTEM_TABLE *table);
 
-void err_handle(EFI_STATUS status, CHAR16 *description);
+void err_handle(EFI_STATUS status, CHAR16 *info);
 
 #endif // ERR_HANDLE_H

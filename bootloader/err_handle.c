@@ -1,10 +1,5 @@
 #include <efi.h>
 
-#define strcpy(dest, src)		\
-	const CHAR16 *_src = (src);	\
-	CHAR16 *_dest = (dest);		\
-	while ((*_dest++ = *_src++));
-
 EFI_HANDLE		IMAGE_HANDLE;
 EFI_SYSTEM_TABLE *	SYSTEM_TABLE;
 
@@ -15,19 +10,9 @@ err_handle_init(EFI_HANDLE image, EFI_SYSTEM_TABLE *table)
 	SYSTEM_TABLE = table;
 }
 
-/*
- * As Exit() needs to be passed a buffer allocated by AllocatePool(), we first
- * allocate it with that function, then copy the string from description to our
- * new buffer.
- */
 void
-err_handle(EFI_STATUS status, UINTN descriptionSize, CHAR16 *description)
+err_handle(EFI_STATUS status, CHAR16 *info)
 {
-	EFI_BOOT_SERVICES *BS = SYSTEM_TABLE->BootServices;
-	void *buffer;
-
-	// Not sure if EfiBootServicesData memory type is best to use here.
-	BS->AllocatePool(EfiBootServicesData, descriptionSize, &buffer);
-	strcpy(buffer, description);
-	BS->Exit(IMAGE_HANDLE, status, descriptionSize, buffer);
+	SYSTEM_TABLE->ConOut->OutputString(SYSTEM_TABLE->ConOut, info);
+	SYSTEM_TABLE->BootServices->Exit(IMAGE_HANDLE, status, 0, 0);
 }
