@@ -11,11 +11,11 @@
 #include "efilib.h"
 #include "graphics.h"
 
-#define TEST_COL_NUM             4
-#define TEST_ROW_NUM             3
-#define TEST_TOTAL_TILES         TEST_SCREEN_COL_NUM * TEST_SCREEN_ROW_NUM
-#define TEST_PRIMARY_COLOUR      0x00FF4000
-#define TEST_SECONDARY_COLOUR    0x00FF80BF
+#define TEST_COL_NUM		4
+#define TEST_ROW_NUM		3
+#define TEST_TOTAL_TILES	TEST_SCREEN_COL_NUM * TEST_SCREEN_ROW_NUM
+#define TEST_PRIMARY_COLOR	0x00FF4000
+#define TEST_SECONDARY_COLOR	0x00FF80BF
 
 /*
  * @brief Finds a video mode.

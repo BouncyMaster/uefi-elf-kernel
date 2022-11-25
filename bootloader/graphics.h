@@ -20,6 +20,9 @@
  * On second thought, not even handleBuffer is used anywhere, what is the
  * purpose of this??
  * 3) maybe place protocol in the struct instead?
+ *
+ * I'm almost sure that this struct doesn't actually need to exist, will keep it
+ * until I fully implement graphics
  */
 
 /*
@@ -46,6 +49,7 @@ struct Graphics {
 void graphics_set_mode(EFI_GRAPHICS_OUTPUT_PROTOCOL * const protocol,
 	const UINT32 targetWidth, const UINT32 targetHeight,
 	const EFI_GRAPHICS_PIXEL_FORMAT targetPixelFormat);
+
 
 /*
  * @brief Initialises the Graphics output service.
