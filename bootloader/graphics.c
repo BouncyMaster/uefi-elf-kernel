@@ -8,9 +8,8 @@
  * and its associated framebuffers.
  */
 
-#include <efi.h>
+#include "efilib.h"
 #include "graphics.h"
-#include "err_handle.h"
 
 #define TEST_SCREEN_COL_NUM             4
 #define TEST_SCREEN_ROW_NUM             3

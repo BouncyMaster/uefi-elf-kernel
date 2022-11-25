@@ -11,7 +11,7 @@
 #ifndef GRAPHICS_H
 #define GRAPHICS_H
 
-#include <efi.h>
+#include "efilib.h"
 
 /*
  * @brief Graphics output service.
@@ -19,7 +19,7 @@
  *
  * Is this an appropriate name or file to define it in?
  */
-struct Uefi_Graphics_Service {
+struct Graphics_Service {
 	EFI_HANDLE *	handle_buffer;
 	UINTN		handle_count;
 };
