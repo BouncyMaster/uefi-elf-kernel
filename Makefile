@@ -8,6 +8,9 @@ BOOTLOADER_BIN = bootloader.efi
 $(BOOTLOADER_BIN): $(BOOTLOADER_SRC)
 	$(BOOTLOADER_CC) -o drive/$@ $(BOOTLOADER_SRC) $(BOOTLOADER_CFLAGS) $(BOOTLOADER_INCS)
 
+tags:
+	ctags `find . -name "*.c"`
+
 run: $(BOOTLOADER_BIN)
 	qemu-system-x86_64 -net none -bios /usr/share/edk2-ovmf/OVMF_CODE.fd -drive format=raw,file=fat:rw:drive/
 
