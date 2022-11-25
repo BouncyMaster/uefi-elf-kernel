@@ -8,8 +8,8 @@
  * and its associated framebuffers.
  */
 
-#ifndef BOOTLOADER_GRAPHICS_H
-#define BOOTLOADER_GRAPHICS_H
+#ifndef GRAPHICS_H
+#define GRAPHICS_H
 
 #include <efi.h>
 
@@ -84,4 +84,4 @@ void draw_rect(EFI_GRAPHICS_OUTPUT_PROTOCOL * const protocol,
  */
 void draw_test_screen(EFI_GRAPHICS_OUTPUT_PROTOCOL * const protocol);
 
-#endif // BOOTLOADER_GRAPHICS_H
+#endif // GRAPHICS_H

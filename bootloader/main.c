@@ -1,7 +1,11 @@
 #include <efi.h>
+#include "err_handle.h"
 
-EFI_STATUS efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable)
+EFI_STATUS
+efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable)
 {
+	err_handle_init(ImageHandle, SystemTable);
+
 	// This clears the screen and buffer.
 	SystemTable->ConOut->ClearScreen(SystemTable->ConOut);
 
