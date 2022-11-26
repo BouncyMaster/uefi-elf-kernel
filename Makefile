@@ -9,10 +9,10 @@ $(BOOTLOADER_BIN): $(BOOTLOADER_SRC)
 	$(BOOTLOADER_CC) -o drive/$@ $(BOOTLOADER_SRC) $(BOOTLOADER_CFLAGS) $(BOOTLOADER_INCS)
 
 tags:
-	ctags `find . -name "*.c"`
+	cd bootloader && ctags -R . && cd ..
 
 run: $(BOOTLOADER_BIN)
 	qemu-system-x86_64 -net none -bios /usr/share/edk2-ovmf/OVMF_CODE.fd -drive format=raw,file=fat:rw:drive/
 
 clean:
-	rm -f drive/$(BOOTLOADER_BIN)
+	rm -f drive/$(BOOTLOADER_BIN) bootloader/tags
