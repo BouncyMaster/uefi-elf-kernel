@@ -41,7 +41,7 @@ graphics_set_mode(EFI_GRAPHICS_OUTPUT_PROTOCOL * const protocol,
 	for (UINT32 i = 0; i < protocol->Mode->MaxMode; i++){
 		status = protocol->QueryMode(protocol, i, &size, &modeInfo);
 		if (EFI_ERROR(status))
-			err_handle(status, L"graphics:set_mode:QueryMode\r\n");
+			err_handle(status, L"graphics:set_mode:QueryMode");
 
 		if (modeInfo->HorizontalResolution == targetWidth &&
 			modeInfo->VerticalResolution == targetHeight &&
@@ -49,11 +49,11 @@ graphics_set_mode(EFI_GRAPHICS_OUTPUT_PROTOCOL * const protocol,
 
 			status = protocol->SetMode(protocol, i);
 			if (EFI_ERROR(status))
-				err_handle(status, L"graphics:set_mode:SetMode\r\n");
+				err_handle(status, L"graphics:set_mode:SetMode");
 			return;
 		}
 	}
-	err_handle(EFI_UNSUPPORTED, L"graphics:set_mode\r\n");
+	err_handle(EFI_UNSUPPORTED, L"graphics:set_mode");
 }
 
 void

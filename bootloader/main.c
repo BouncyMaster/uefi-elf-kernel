@@ -19,11 +19,10 @@ efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable)
 	// Sets global EFI table variables
 	efi_init(ImageHandle, SystemTable);
 
-	SystemTable->ConOut->ClearScreen(SystemTable->ConOut);
 	// Disable watchdog timer
 	status = BOOT_SERVICES->SetWatchdogTimer(0, 0, 0, 0);
 	if (EFI_ERROR(status))
-		err_handle(status, L"main:SetWatchdogTimer\r\n");
+		err_handle(status, L"main:SetWatchdogTimer");
 
 	// Graphics
 	//struct Graphics graphics;
@@ -42,14 +41,7 @@ efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable)
 
 	status = BOOT_SERVICES->LocateProtocol(&gopGuid, 0, (void **)&gop);
 	if (EFI_ERROR(status))
-		err_handle(status, L"main:LocateProtocol\r\n");
-	/*
-	status = BOOT_SERVICES->OpenProtocol(SystemTable->ConsoleOutHandle,
-		&gopGuid, (void **)(&gop), ImageHandle, 0,
-		EFI_OPEN_PROTOCOL_BY_HANDLE_PROTOCOL);
-	if (EFI_ERROR(status))
-		err_handle(status, L"main:OpenProtocol\r\n");
-	*/
+		err_handle(status, L"main:LocateProtocol");
 
 	if (gop){
 		graphics_set_mode(gop, TARGET_SCREEN_WIDTH,
@@ -60,13 +52,9 @@ efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable)
 		#endif
 	}
 
-	//BOOT_SERVICES->Stall(1000000);
-	//err_handle(EFI_UNSUPPORTED, L"testing\r\n");
-
+	err_handle(EFI_UNSUPPORTED, L"testing");
 	// We use this for loop to hang.
 	for(;;){};
-
-	//graphics_close(&graphics);
 
 	return EFI_SUCCESS;
 }

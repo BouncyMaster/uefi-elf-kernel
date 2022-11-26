@@ -18,5 +18,6 @@ err_handle(EFI_STATUS status, CHAR16 *info)
 	EFI_SIMPLE_TEXT_OUTPUT_PROTOCOL *conOut = SYSTEM_TABLE->ConOut;
 
 	conOut->OutputString(conOut, info);
+	conOut->OutputString(conOut, L"\r\n");
 	BOOT_SERVICES->Exit(IMAGE_HANDLE, status, 0, 0);
 }
