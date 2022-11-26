@@ -9,7 +9,6 @@
  */
 
 #include "efilib.h"
-#include "graphics.h"
 
 #define TEST_COL_NUM		4
 #define TEST_ROW_NUM		3
