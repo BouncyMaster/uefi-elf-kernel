@@ -13,7 +13,7 @@
 
 #define TEST_COL_NUM		4
 #define TEST_ROW_NUM		3
-#define TEST_TOTAL_TILES	TEST_SCREEN_COL_NUM * TEST_SCREEN_ROW_NUM
+#define TEST_TOTAL_TILES	TEST_COL_NUM * TEST_ROW_NUM
 #define TEST_PRIMARY_COLOR	0x00FF4000
 #define TEST_SECONDARY_COLOR	0x00FF80BF
 
@@ -38,7 +38,7 @@ find_mode(EFI_GRAPHICS_OUTPUT_PROTOCOL * const protocol,
 	UINTN size;
 	EFI_GRAPHICS_OUTPUT_MODE_INFORMATION *modeInfo;
 
-	for (UINT32 i = 0; i < protocol->MaxMode; i++){
+	for (UINT32 i = 0; i < protocol->Mode->MaxMode; i++){
 		status = protocol->QueryMode(protocol, i, &size, &modeInfo);
 		if (EFI_ERROR(status))
 			err_handle(status, L"graphics:find_mode:QueryMode\r\n");
@@ -49,6 +49,7 @@ find_mode(EFI_GRAPHICS_OUTPUT_PROTOCOL * const protocol,
 				return i;
 	}
 	err_handle(EFI_UNSUPPORTED, L"graphics:find_mode\r\n");
+	return 0; // To please compiler
 }
 
 // TODO: Maybe move the above function to the below one
@@ -75,8 +76,7 @@ graphics_init(struct Graphics *graphics)
 
 	// Populate graphics service handle buffer.
 	status = BOOT_SERVICES->LocateHandleBuffer(ByProtocol,
-		&gopGuid, 0, &graphics_service->handleCount,
-		&graphics_service->handleBuffer);
+		&gopGuid, 0, &graphics->handleCount, &graphics->handleBuffer);
 
 	if (EFI_ERROR(status))
 		err_handle(status, L"graphics:init\r\n");
@@ -85,8 +85,7 @@ graphics_init(struct Graphics *graphics)
 void
 graphics_close(struct Graphics *graphics)
 {
-	EFI_STATUS status = BOOT_SERVICES->FreePool(
-		graphics_service.handle_buffer);
+	EFI_STATUS status = BOOT_SERVICES->FreePool(graphics->handleBuffer);
 
 	if (EFI_ERROR(status))
 		err_handle(status, L"graphics:close\r\n");
@@ -114,9 +113,9 @@ void
 graphics_draw_test(EFI_GRAPHICS_OUTPUT_PROTOCOL * const protocol)
 {
 	const UINT16 tileWidth = protocol->Mode->Info->HorizontalResolution /
-		TEST_SCREEN_COL_NUM;
+		TEST_COL_NUM;
 	const UINT16 tileHeight = protocol->Mode->Info->VerticalResolution /
-		TEST_SCREEN_ROW_NUM;
+		TEST_ROW_NUM;
 
 	UINT8 x, y;
 	UINT32 color;
@@ -125,9 +124,9 @@ graphics_draw_test(EFI_GRAPHICS_OUTPUT_PROTOCOL * const protocol)
 		x = p % TEST_COL_NUM;
 		y = p / TEST_COL_NUM;
 
-		color = TEST_PRIMARY_COLOUR;
+		color = TEST_PRIMARY_COLOR;
 		if (((y % 2) + x) % 2)
-			color = TEST_SCREEN_SECONDARY_COLOUR;
+			color = TEST_SECONDARY_COLOR;
 
 		graphics_draw_rect(protocol, tileWidth * x, tileHeight * y,
 			tileWidth, tileHeight, color);
