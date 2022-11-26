@@ -1,2 +1,0 @@
-Make error checking `EFI_ERROR(status)` act like an assert, aka only check for
-errors if running a debug build

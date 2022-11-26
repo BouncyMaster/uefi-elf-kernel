@@ -24,8 +24,7 @@ efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable)
 
 	// Disable watchdog timer
 	status = BOOT_SERVICES->SetWatchdogTimer(0, 0, 0, 0);
-	if (EFI_ERROR(status))
-		err_handle(status, L"main:SetWatchdogTimer");
+	efi_assert(status, L"main:SetWatchdogTimer");
 
 	gop = graphics_init(TARGET_SCREEN_WIDTH, TARGET_SCREEN_HEIGHT,
 		TARGET_PIXEL_FORMAT);

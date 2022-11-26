@@ -17,8 +17,7 @@ fs_init(void)
 	EFI_SIMPLE_FILE_SYSTEM_PROTOCOL *protocol;
 
 	status = BOOT_SERVICES->LocateProtocol(&fsGuid, 0, (void **)&protocol);
-	if (EFI_ERROR(status))
-		err_handle(status, L"fs:init");
+	efi_assert(status, L"fs:init");
 
 	return protocol;
 }
