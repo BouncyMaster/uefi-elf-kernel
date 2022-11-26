@@ -14,29 +14,16 @@
 #include "efilib.h"
 
 /*
- * TODO: !!!
- * 1) Figure out where graphics protocol is defined and why is it not in graphics
- * 2) why is handleCount stored in struct Graphics, nobody is using it.
- * On second thought, not even handleBuffer is used anywhere, what is the
- * purpose of this??
- * 3) maybe place protocol in the struct instead?
- *
- * I'm almost sure that this struct doesn't actually need to exist, will keep it
- * until I fully implement graphics
- */
-
-/*
- * @brief Finds and sets a video mode.
- * Finds and sets a particular video mode by its width, height and pixel format.
- * Tests all video modes copatible with the provided protocol, calling SetMode
- * when one is found.
- * @param[in]  protocol			The protocol to find the video mode in.
+ * @brief Initializes the GOP.
+ * Initializes the GOP, finds and sets the requested video mode.
  * @param[in]  targetWidth		The target width to search for.
  * @param[in]  targetHeight		The target height to search for.
  * @param[in]  targetPixelFormat	The target pixel format to search for.
+ *
+ * @return the GOP pointer.
  */
-void graphics_set_mode(EFI_GRAPHICS_OUTPUT_PROTOCOL * const protocol,
-	const UINT32 targetWidth, const UINT32 targetHeight,
+EFI_GRAPHICS_OUTPUT_PROTOCOL * graphics_init(const UINT32 targetWidth,
+	const UINT32 targetHeight,
 	const EFI_GRAPHICS_PIXEL_FORMAT targetPixelFormat);
 
 /*

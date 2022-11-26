@@ -26,11 +26,9 @@
  * @param[in]  targetWidth		The target width to search for.
  * @param[in]  targetHeight		The target height to search for.
  * @param[in]  targetPixelFormat	The target pixel format to search for.
- *
- * @retval modeNum.
  */
-void
-graphics_set_mode(EFI_GRAPHICS_OUTPUT_PROTOCOL * const protocol,
+static void
+set_mode(EFI_GRAPHICS_OUTPUT_PROTOCOL * const protocol,
 	const UINT32 targetWidth, const UINT32 targetHeight,
 	const EFI_GRAPHICS_PIXEL_FORMAT targetPixelFormat)
 {
@@ -54,6 +52,23 @@ graphics_set_mode(EFI_GRAPHICS_OUTPUT_PROTOCOL * const protocol,
 		}
 	}
 	err_handle(EFI_UNSUPPORTED, L"graphics:set_mode");
+}
+
+EFI_GRAPHICS_OUTPUT_PROTOCOL *
+graphics_init(const UINT32 targetWidth, const UINT32 targetHeight,
+	const EFI_GRAPHICS_PIXEL_FORMAT targetPixelFormat)
+{
+	EFI_STATUS status;
+	EFI_GUID gopGuid = EFI_GRAPHICS_OUTPUT_PROTOCOL_GUID;
+	EFI_GRAPHICS_OUTPUT_PROTOCOL *protocol;
+
+	status = BOOT_SERVICES->LocateProtocol(&gopGuid, 0, (void **)&protocol);
+	if (EFI_ERROR(status))
+		err_handle(status, L"graphics:init");
+
+	set_mode(protocol, targetWidth, targetHeight, targetPixelFormat);
+
+	return protocol;
 }
 
 void
