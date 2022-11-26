@@ -1,5 +1,6 @@
 #include "efilib.h"
 #include "graphics.h"
+#include "fs.h"
 
 #define TARGET_SCREEN_WIDTH     800
 #define TARGET_SCREEN_HEIGHT    600
@@ -16,6 +17,7 @@ efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable)
 {
 	EFI_STATUS status;
 	EFI_GRAPHICS_OUTPUT_PROTOCOL *gop;
+	EFI_SIMPLE_FILE_SYSTEM_PROTOCOL *fsp;
 
 	// Sets global EFI table variables
 	efi_init(ImageHandle, SystemTable);
@@ -31,6 +33,8 @@ efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable)
 	#if DRAW_TEST_SCREEN != 0
 		graphics_draw_test(gop);
 	#endif
+
+	fsp = fs_init();
 
 	// We use this for loop to hang.
 	for(;;){};
