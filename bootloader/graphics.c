@@ -18,10 +18,10 @@
 #define TEST_SECONDARY_COLOR	0x00FF80BF
 
 /*
- * @brief Finds a video mode.
- * Finds a particular video mode by its width, height and pixel format.
- * Tests all video modes copatible with the provided protocol, populating the
- * `video_mode` variable on success.
+ * @brief Finds and sets a video mode.
+ * Finds and sets a particular video mode by its width, height and pixel format.
+ * Tests all video modes copatible with the provided protocol, calling SetMode
+ * when one is found.
  * @param[in]  protocol			The protocol to find the video mode in.
  * @param[in]  targetWidth		The target width to search for.
  * @param[in]  targetHeight		The target height to search for.
@@ -29,8 +29,8 @@
  *
  * @retval modeNum.
  */
-static UINT32
-find_mode(EFI_GRAPHICS_OUTPUT_PROTOCOL * const protocol,
+void
+graphics_set_mode(EFI_GRAPHICS_OUTPUT_PROTOCOL * const protocol,
 	const UINT32 targetWidth, const UINT32 targetHeight,
 	const EFI_GRAPHICS_PIXEL_FORMAT targetPixelFormat)
 {
@@ -41,54 +41,19 @@ find_mode(EFI_GRAPHICS_OUTPUT_PROTOCOL * const protocol,
 	for (UINT32 i = 0; i < protocol->Mode->MaxMode; i++){
 		status = protocol->QueryMode(protocol, i, &size, &modeInfo);
 		if (EFI_ERROR(status))
-			err_handle(status, L"graphics:find_mode:QueryMode\r\n");
+			err_handle(status, L"graphics:set_mode:QueryMode\r\n");
 
 		if (modeInfo->HorizontalResolution == targetWidth &&
 			modeInfo->VerticalResolution == targetHeight &&
-			modeInfo->PixelFormat == targetPixelFormat)
-				return i;
+			modeInfo->PixelFormat == targetPixelFormat) {
+
+			status = protocol->SetMode(protocol, i);
+			if (EFI_ERROR(status))
+				err_handle(status, L"graphics:set_mode:SetMode\r\n");
+			return;
+		}
 	}
-	err_handle(EFI_UNSUPPORTED, L"graphics:find_mode\r\n");
-	return 0; // To please compiler
-}
-
-// TODO: Maybe move the above function to the below one
-void
-graphics_set_mode(EFI_GRAPHICS_OUTPUT_PROTOCOL * const protocol,
-	const UINT32 targetWidth, const UINT32 targetHeight,
-	const EFI_GRAPHICS_PIXEL_FORMAT targetPixelFormat)
-{
-	EFI_STATUS status;
-	UINT32 modeNum = find_mode(protocol, targetWidth, targetHeight,
-		targetPixelFormat);
-
-	status = protocol->SetMode(protocol, modeNum);
-
-	if (EFI_ERROR(status))
-		err_handle(status, L"graphics:set_mode\r\n");
-}
-
-void
-graphics_init(struct Graphics *graphics)
-{
-	EFI_STATUS status;
-	EFI_GUID gopGuid = EFI_GRAPHICS_OUTPUT_PROTOCOL_GUID;
-
-	// Populate graphics service handle buffer.
-	status = BOOT_SERVICES->LocateHandleBuffer(ByProtocol,
-		&gopGuid, 0, &graphics->handleCount, &graphics->handleBuffer);
-
-	if (EFI_ERROR(status))
-		err_handle(status, L"graphics:init\r\n");
-}
-
-void
-graphics_close(struct Graphics *graphics)
-{
-	EFI_STATUS status = BOOT_SERVICES->FreePool(graphics->handleBuffer);
-
-	if (EFI_ERROR(status))
-		err_handle(status, L"graphics:close\r\n");
+	err_handle(EFI_UNSUPPORTED, L"graphics:set_mode\r\n");
 }
 
 void

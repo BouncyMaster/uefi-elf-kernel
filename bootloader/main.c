@@ -60,6 +60,9 @@ efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable)
 		#endif
 	}
 
+	//BOOT_SERVICES->Stall(1000000);
+	//err_handle(EFI_UNSUPPORTED, L"testing\r\n");
+
 	// We use this for loop to hang.
 	for(;;){};
 

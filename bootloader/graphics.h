@@ -26,46 +26,18 @@
  */
 
 /*
- * @brief Graphics output service.
- * Holds variables necesssary for using the UEFI graphics output service.
- *
- * Is this an appropriate name or file to define it in?
- */
-struct Graphics {
-	EFI_HANDLE *	handleBuffer;
-	UINTN		handleCount;
-};
-
-/*
- * @brief Set the graphics mode for a particular protocol.
- * Sets the graphics mode for a particular protocol handle. Sets the graphics
- * mode by searching all available modes on this protocol for one that matches
- * the target width/height.
- * @param[in] protocol			The protocol to set the mode for.
- * @param[in] targetWidth		The target width.
- * @param[in] targetHeight		The target height.
- * @param[in] targetPixelFormat		The target pixel format.
+ * @brief Finds and sets a video mode.
+ * Finds and sets a particular video mode by its width, height and pixel format.
+ * Tests all video modes copatible with the provided protocol, calling SetMode
+ * when one is found.
+ * @param[in]  protocol			The protocol to find the video mode in.
+ * @param[in]  targetWidth		The target width to search for.
+ * @param[in]  targetHeight		The target height to search for.
+ * @param[in]  targetPixelFormat	The target pixel format to search for.
  */
 void graphics_set_mode(EFI_GRAPHICS_OUTPUT_PROTOCOL * const protocol,
 	const UINT32 targetWidth, const UINT32 targetHeight,
 	const EFI_GRAPHICS_PIXEL_FORMAT targetPixelFormat);
-
-
-/*
- * @brief Initialises the Graphics output service.
- * Initialises the graphics output service. Populates the handle buffer in the
- * graphics output service.
- * @param[out] graphics
- */
-void graphics_init(struct Graphics *graphics);
-
-/*
- * @brief Closes the graphics output service.
- * Closes the graphics output service, freeing the handle buffer used by the
- * service.
- * @param[in] graphics
- */
-void graphics_close(struct Graphics *graphics);
 
 /*
  * @brief Draws a rectangle onto the framebuffer.
