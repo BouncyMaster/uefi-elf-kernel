@@ -12,6 +12,7 @@ efi_init(EFI_HANDLE image, EFI_SYSTEM_TABLE *table)
 	BOOT_SERVICES = table->BootServices;
 }
 
+#ifdef DEBUG
 void
 err_handle(EFI_STATUS status, CHAR16 *info)
 {
@@ -21,3 +22,4 @@ err_handle(EFI_STATUS status, CHAR16 *info)
 	conOut->OutputString(conOut, L"\r\n");
 	BOOT_SERVICES->Exit(IMAGE_HANDLE, status, 0, 0);
 }
+#endif

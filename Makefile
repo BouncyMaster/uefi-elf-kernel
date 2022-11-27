@@ -2,8 +2,8 @@ BOOTLOADER_CC = x86_64-w64-mingw32-gcc
 BOOTLOADER_INCS = -I../include
 BOOTLOADER_SRC = bootloader/main.c bootloader/graphics.c bootloader/efilib.c \
 	bootloader/fs.c
-BOOTLOADER_CFLAGS = -Wall -Wno-unused-but-set-variable -Werror -m64 -mabi=ms -ffreestanding -nostdlib -shared \
-	-Wl,-dll -Wl,--subsystem,10 -e efi_main
+BOOTLOADER_CFLAGS = -Wall -Wno-unused-but-set-variable -Werror -m64 -mabi=ms \
+	-ffreestanding -nostdlib -shared -Wl,-dll -Wl,--subsystem,10 -e efi_main
 BOOTLOADER_BIN = bootloader.efi
 
 DBG_CFLAGS = -DDEBUG -g
@@ -18,7 +18,7 @@ rel_bootloader: $(BOOTLOADER_SRC)
 tags:
 	cd bootloader && ctags -R . && cd ..
 
-run: $(BOOTLOADER_BIN)
+run:
 	qemu-system-x86_64 -net none -bios /usr/share/edk2-ovmf/OVMF_CODE.fd -drive format=raw,file=fat:rw:drive/
 
 clean:

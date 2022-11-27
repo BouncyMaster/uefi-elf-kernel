@@ -102,9 +102,10 @@ graphics_draw_test(EFI_GRAPHICS_OUTPUT_PROTOCOL * const protocol)
 		x = p % TEST_COL_NUM;
 		y = p / TEST_COL_NUM;
 
-		color = TEST_PRIMARY_COLOR;
 		if (((y % 2) + x) % 2)
 			color = TEST_SECONDARY_COLOR;
+		else
+			color = TEST_PRIMARY_COLOR;
 
 		graphics_draw_rect(protocol, tileWidth * x, tileHeight * y,
 			tileWidth, tileHeight, color);
