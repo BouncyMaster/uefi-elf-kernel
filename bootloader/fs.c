@@ -1,12 +1,3 @@
-/*
- * ORIGINALLY FROM:
- * @file fs.c
- * @author ajxs
- * @date Aug 2019
- * @brief Filesystem functionality.
- * Contains functionality for interacting with the filesystem via EFI services.
- */
-
 #include "efilib.h"
 
 EFI_SIMPLE_FILE_SYSTEM_PROTOCOL *

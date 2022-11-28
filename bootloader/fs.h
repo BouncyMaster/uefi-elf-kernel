@@ -1,11 +1,4 @@
-/*
- * ORIGINALLY FROM:
- * @file fs.h
- * @author ajxs
- * @date Aug 2019
- * @brief Functionality for working with the file system.
- * Contains functionality for initiating and working with the file system service.
- */
+// Contains functionality for initiating and working with the file system service.
 
 #ifndef FS_H
 #define FS_H
