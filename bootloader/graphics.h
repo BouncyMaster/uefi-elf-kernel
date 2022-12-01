@@ -11,9 +11,9 @@
 /*
  * @brief Initializes the GOP.
  * Initializes the GOP, finds and sets the requested video mode.
- * @param[in]  targetWidth		The target width to search for.
- * @param[in]  targetHeight		The target height to search for.
- * @param[in]  targetPixelFormat	The target pixel format to search for.
+ * @param[in] targetWidth		The target width to search for.
+ * @param[in] targetHeight		The target height to search for.
+ * @param[in] targetPixelFormat		The target pixel format to search for.
  *
  * @return the GOP pointer.
  */
