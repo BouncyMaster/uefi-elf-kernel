@@ -72,9 +72,8 @@ void elf_read_file(EFI_FILE_PROTOCOL * const file, void **headerBuffer,
 
 /*
  * @brief Reads the identity buffer of an ELF file.
- * Reads the identity buffer from the ELF header, which is used to both validate
- * that the file is a valid ELF executable, as well as read the ELF file class
- * value.
+ * Reads the identity buffer from the ELF header, which is used to validate
+ * that the file is a valid ELF executable.
  * @param[in] file	The kernel binary to read the file class from.
  *
  * @return The identity buffer.
@@ -86,6 +85,6 @@ UINT8 * elf_read_identity(EFI_FILE_PROTOCOL * const file);
  * Validates whether the ELF identity correctly identifies an ELF file.
  * @param[in] buffer	The ELF identity buffer to validate.
  */
-void validate_elf_identity(UINT8 * const buffer);
+void elf_validate_identity(UINT8 * const buffer);
 
 #endif // ELF_H
