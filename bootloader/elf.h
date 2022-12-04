@@ -29,6 +29,8 @@
 #define PT_PHDR            6
 #define PT_TLS             7
 
+#define ELF_FILE_CLASS_64 2
+
 // The ELF header
 typedef struct {
 	UINT8	e_ident[EI_NIDENT];
@@ -80,11 +82,13 @@ void elf_read_file(EFI_FILE_PROTOCOL * const file, void **headerBuffer,
  */
 UINT8 * elf_read_identity(EFI_FILE_PROTOCOL * const file);
 
-/**
+#ifdef DEBUG
+/*
  * @brief Validates the ELF file identity.
  * Validates whether the ELF identity correctly identifies an ELF file.
  * @param[in] buffer	The ELF identity buffer to validate.
  */
-void elf_validate_identity(UINT8 * const buffer);
+void elf_validate(UINT8 * const buffer);
+#endif
 
 #endif // ELF_H
