@@ -72,6 +72,7 @@ typedef struct {
 void elf_read_file(EFI_FILE_PROTOCOL * const file, void **headerBuffer,
 	void **programHeaderBuffer);
 
+#ifdef DEBUG
 /*
  * @brief Reads the identity buffer of an ELF file.
  * Reads the identity buffer from the ELF header, which is used to validate
@@ -82,7 +83,6 @@ void elf_read_file(EFI_FILE_PROTOCOL * const file, void **headerBuffer,
  */
 UINT8 * elf_read_identity(EFI_FILE_PROTOCOL * const file);
 
-#ifdef DEBUG
 /*
  * @brief Validates the ELF file identity.
  * Validates whether the ELF identity correctly identifies an ELF file.

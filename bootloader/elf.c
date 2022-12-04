@@ -37,6 +37,7 @@ elf_read_file(EFI_FILE_PROTOCOL * const file, void **headerBuffer,
 	efi_assert(status, L"elf:read_file:programHeader:Read");
 }
 
+//TODO: why is this needed
 #ifdef DEBUG
 UINT8 *
 elf_read_identity(EFI_FILE_PROTOCOL * const file)
