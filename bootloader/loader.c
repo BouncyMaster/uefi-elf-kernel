@@ -1,5 +1,3 @@
-// Contains functionality for loading the Kernel ELF executable.
-
 #include "efilib.h"
 
 void

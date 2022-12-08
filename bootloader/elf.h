@@ -8,26 +8,18 @@
 
 #include "efilib.h"
 
-#define EI_NIDENT        16
+#define EI_NIDENT	16
 
-#define EI_MAG0          0
-#define EI_MAG1          0x1
-#define EI_MAG2          0x2
-#define EI_MAG3          0x3
-#define EI_CLASS         0x4
-#define EI_DATA          0x5
-#define EI_VERSION       0x6
-#define EI_OSABI         0x7
-#define EI_ABIVERSION    0x8
+#define EI_MAG0		0
+#define EI_MAG1		0x1
+#define EI_MAG2		0x2
+#define EI_MAG3		0x3
+#define EI_CLASS	0x4
+#define EI_DATA		0x5
+#define EI_VERSION	0x6
+#define EI_OSABI	0x7
 
-#define PT_NULL            0
-#define PT_LOAD            1
-#define PT_DYNAMIC         2
-#define PT_INTERP          3
-#define PT_NOTE            4
-#define PT_SHLIB           5
-#define PT_PHDR            6
-#define PT_TLS             7
+#define PT_LOAD 1
 
 #define ELF_FILE_CLASS_64 2
 
