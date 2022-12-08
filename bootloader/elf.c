@@ -1,6 +1,11 @@
 #include "efilib.h"
 #include "elf.h"
 
+//TODO: make all functions static. create a new function that calls these other
+// funcs depending on DEBUG && also anothe function that handles freeing
+
+//TODO: maybe pass e.g. Elf_Hdr * instead of void *
+// Also, is non freed memory a problem?
 void
 elf_read_file(EFI_FILE_PROTOCOL * const file, void **headerBuffer,
 	void **programHeaderBuffer)
@@ -9,11 +14,12 @@ elf_read_file(EFI_FILE_PROTOCOL * const file, void **headerBuffer,
 	UINTN bufferReadSize;
 
 	// Read file header
-	bufferReadSize = sizeof(Elf64_Ehdr);
+	bufferReadSize = sizeof(Elf_Hdr);
 
 	status = file->SetPosition(file, 0);
 	efi_assert(status, L"elf:read_file:header:SetPosition");
 
+	// TODO: use static alloc maybe
 	status = BOOT_SERVICES->AllocatePool(EfiLoaderData, bufferReadSize,
 		headerBuffer);
 	efi_assert(status, L"elf:read_file:header:AllocatePool");
@@ -22,9 +28,8 @@ elf_read_file(EFI_FILE_PROTOCOL * const file, void **headerBuffer,
 	efi_assert(status, L"elf:read_file:header:Read");
 
 	// Read program header
-	UINTN programHeaderOffset = ((Elf64_Ehdr*)*headerBuffer)->e_phoff;
-	bufferReadSize = sizeof(Elf64_Phdr) *
-		((Elf64_Ehdr*)*headerBuffer)->e_phnum;
+	UINTN programHeaderOffset = ((Elf_Hdr*)*headerBuffer)->e_phoff;
+	bufferReadSize = sizeof(Elf_Phdr) * ((Elf_hdr*)*headerBuffer)->e_phnum;
 
 	status = file->setPosition(file, programHeaderOffset);
 	efi_assert(status, L"elf:read_file:programHeader:SetPosition");
@@ -37,7 +42,6 @@ elf_read_file(EFI_FILE_PROTOCOL * const file, void **headerBuffer,
 	efi_assert(status, L"elf:read_file:programHeader:Read");
 }
 
-//TODO: why is this needed
 #ifdef DEBUG
 UINT8 *
 elf_read_identity(EFI_FILE_PROTOCOL * const file)
@@ -50,12 +54,13 @@ elf_read_identity(EFI_FILE_PROTOCOL * const file)
 	status = file->SetPosition(file, 0);
 	efi_assert(status, L"elf:read_identity:SetPosition");
 
-	status = BOOT_SERVICES->AllocatePool(EfiLoaderData, EI_NIDENT,
-		(void**)&buffer);
+	status = BOOT_SERVICES->AllocatePool(EfiLoaderData, EI_NIDENT, &buffer);
 	efi_assert(status, L"elf:read_identity:AllocatePool");
 
-	status = file->Read(file, &bufferReadSize, (void*)buffer);
+	status = file->Read(file, &bufferReadSize, buffer);
 	efi_assert(status, L"elf:read_identity:Read");
+
+	return buffer;
 }
 
 void

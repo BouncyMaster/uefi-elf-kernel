@@ -1,6 +1,7 @@
 /*
  * Contains functionality to assist in loading and validating ELF executable
  * files. This functionality is essential to the ELF executable loader.
+ * NOTE: only supports 64bit binaries.
  */
 
 #ifndef ELF_H
@@ -39,7 +40,7 @@ typedef struct {
 	UINT16	e_shentsize;
 	UINT16	e_shnum;
 	UINT16	e_shstrndx;
-} Elf_hdr;
+} Elf_Hdr;
 
 // The ELF program header
 typedef struct {
