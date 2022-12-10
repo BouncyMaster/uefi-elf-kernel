@@ -63,16 +63,12 @@ efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable)
 	EFI_FILE_PROTOCOL *root;
 	EFI_PHYSICAL_ADDRESS kernelEntryPoint;
 	// Function pointer to the kernel entry point
-	void (*kernel_entry)(Kernel_Info* bootInfo);
+	void (*kernel_entry)(Boot_Info *bootInfo);
 	// Passed to the kernel
-	Kernel_Info info;
+	Boot_Info info;
 
 	// Sets global EFI table variables
 	efi_init(ImageHandle, SystemTable);
-
-	// Disable watchdog timer
-	//status = BOOT_SERVICES->SetWatchdogTimer(0, 0, 0, 0);
-	//efi_assert(status, L"main:SetWatchdogTimer");
 
 	gop = graphics_init(TARGET_SCREEN_WIDTH, TARGET_SCREEN_HEIGHT,
 		TARGET_PIXEL_FORMAT);
@@ -105,7 +101,7 @@ efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable)
 	boot.memoryMapDescriptorSize = descriptorSize;
 
 	// Cast pointer to kernel entry.
-	kernel_entry = (void (*)(Kernel_Info *))*kernelEntryPoint;
+	kernel_entry = (void (*)(Boot_Info *))*kernelEntryPoint;
 	// Jump to kernel entry.
 	kernel_entry(&info);
 
