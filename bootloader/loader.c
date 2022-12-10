@@ -31,24 +31,27 @@ load_segment(EFI_FILE_PROTOCOL * const file, const UINT64 offset,
 		pageCount, &physicalAddress);
 	efi_assert(status, L"load:segment:AllocatePages");
 
+	/*
 #ifdef DEBUG
 	// TODO: is the check needed?
 	if (!fileSize)
 		err_handle(EFI_LOAD_ERROR, L"load:segment:fileSize");
 #endif
+	*/
+	if (fileSize > 0){
+		status = BOOT_SERVICES->AllocatePool(EfiLoaderCode, fileSize,
+			&programData);
+		efi_assert(status, L"load:segment:AllocatePool");
 
-	status = BOOT_SERVICES->AllocatePool(EfiLoaderCode, fileSize,
-		&programData);
-	efi_assert(status, L"load:segment:AllocatePool");
+		status = file->Read(file, &fileSize, programData);
+		efi_assert(status, L"load:segment:Read");
 
-	status = file->Read(file, &fileSize, programData);
-	efi_assert(status, L"load:segment:Read");
+		BOOT_SERVICES->CopyMem((void *)physicalAddress, programData, fileSize);
+		efi_assert(status, L"load:segment:CopyMem");
 
-	BOOT_SERVICES->CopyMem((void *)physicalAddress, programData, fileSize);
-	efi_assert(status, L"load:segment:CopyMem");
-
-	status = BOOT_SERVICES->FreePool(programData);
-	efi_assert(status, L"load:segment:FreePool");
+		status = BOOT_SERVICES->FreePool(programData);
+		efi_assert(status, L"load:segment:FreePool");
+	}
 
 	/*
 	 * As per ELF Standard, if the size in memory is larger than the file
