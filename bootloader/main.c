@@ -6,11 +6,56 @@
 #define TARGET_SCREEN_HEIGHT	600
 #define TARGET_PIXEL_FORMAT	PixelBlueGreenRedReserved8BitPerColor
 
+#define KERNEL_EXECUTABLE_PATH	L"\\kernel.elf"
+
 /*
  * Whether to draw a test pattern to video output to test the graphics output
  * service.
  */
-#define DRAW_TEST_SCREEN 1
+#define DRAW_TEST_SCREEN 0
+
+static void
+get_memory_map(void **memoryMap, UINTN *memoryMapSize, UINTN *memoryMapKey,
+	UINTN *descriptorSize, UINT32 *descriptorVersion)
+{
+	EFI_STATUS status;
+
+	status = BOOT_SERVICES->GetMemoryMap(memoryMapSize, *memoryMap,
+		memoryMapKey, descriptorSize, descriptorVersion);
+	efi_assert(status, "main:get_memory_map:1");
+	/*
+	if(EFI_ERROR(status)) {
+		// This will always fail on the first attempt, this call will return the
+		// required buffer size.
+		if(status != EFI_BUFFER_TOO_SMALL) {
+			debug_print_line(L"Fatal Error: Error getting memory map size: %s\n",
+				get_efi_error_message(status));
+
+			#if PROMPT_FOR_INPUT_BEFORE_REBOOT_ON_FATAL_ERROR
+				debug_print_line(L"Press any key to reboot...");
+				wait_for_input(&input_key);
+			#endif
+
+			return status;
+		}
+	}
+	*/
+
+	/*
+	 * According to: https://stackoverflow.com/a/39674958/5931673
+	 * Up to two new descriptors may be created in the process of allocating
+	 * the new pool memory.
+	 */
+	*memoryMapSize += 2 * (*descriptorSize);
+
+	status = BOOT_SERVICES->AllocatePool(EfiLoaderData, *memoryMapSize,
+		memoryMap);
+	efi_assert(status, "main:get_memory_map:AllocatePool");
+
+	status = BOOT_SERVICES->GetMemoryMap(memoryMapSize, *memoryMap,
+		memoryMapKey, descriptorSize, descriptorVersion);
+	efi_assert(status, "main:get_memory_map:2");
+}
 
 EFI_STATUS
 efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable)
@@ -19,6 +64,7 @@ efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable)
 	EFI_GRAPHICS_OUTPUT_PROTOCOL *gop;
 	EFI_SIMPLE_FILE_SYSTEM_PROTOCOL *fsp;
 	EFI_FILE_PROTOCOL *root;
+	EFI_PHYSICAL_ADDRESS kernelEntryPoint;
 
 	// Sets global EFI table variables
 	efi_init(ImageHandle, SystemTable);
@@ -38,8 +84,7 @@ efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable)
 	status = fsp->OpenVolume(fsp, &root);
 	efi_assert(status, L"main:OpenVolume");
 
-	// We use this for loop to hang.
-	for(;;){};
+	kernelEntryPoint = load_kernel(root, KERNEL_EXECUTABLE_PATH);
 
 	return EFI_SUCCESS;
 }
