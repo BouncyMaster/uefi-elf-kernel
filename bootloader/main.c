@@ -57,7 +57,7 @@ efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable)
 	EFI_SIMPLE_FILE_SYSTEM_PROTOCOL *fsp;
 
 	EFI_MEMORY_DESCRIPTOR *memoryMap;
-	UINTN	memoryMapSize, memoryMapKey, descriptorSize;
+	UINTN	memoryMapSize = 0, memoryMapKey, descriptorSize;
 	UINT32	descriptorVersion;
 
 	EFI_FILE_PROTOCOL *root;
@@ -88,6 +88,9 @@ efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable)
 	info.videoModeInfo.horizontalRes = gop->Mode->Info->HorizontalResolution;
 	info.videoModeInfo.verticalRes = gop->Mode->Info->VerticalResolution;
 	info.videoModeInfo.pixelsPerScanline = gop->Mode->Info->PixelsPerScanLine;
+
+	EFI_SIMPLE_TEXT_OUTPUT_PROTOCOL *conOut = SYSTEM_TABLE->ConOut;
+	conOut->OutputString(conOut, L"Reached before exit\r\n");
 
 	get_memory_map(&memoryMap, &memoryMapSize, &memoryMapKey,
 		&descriptorSize, &descriptorVersion);
