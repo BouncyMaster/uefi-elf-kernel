@@ -2,10 +2,10 @@
 #define KERNEL_H
 
 typedef struct {
-	VOID	*framebufferPointer;
-	UINT32	 horizontalRes;
-	UINT32	 verticalRes;
-	UINT32	 pixelsPerScanline;
+	EFI_PHYSICAL_ADDRESS	framebufferPointer;
+	UINT32			horizontalRes;
+	UINT32			verticalRes;
+	UINT32			pixelsPerScanline;
 } Video_Mode_Info;
 
 /*

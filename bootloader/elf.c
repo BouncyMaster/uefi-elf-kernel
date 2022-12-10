@@ -47,7 +47,7 @@ elf_read_file(EFI_FILE_PROTOCOL * const file, Elf_Hdr **headerBuffer,
 
 	// TODO: use static alloc maybe
 	status = BOOT_SERVICES->AllocatePool(EfiLoaderData, bufferReadSize,
-		headerBuffer);
+		(void **)headerBuffer);
 	efi_assert(status, L"elf:read_file:header:AllocatePool");
 
 	status = file->Read(file, &bufferReadSize, *headerBuffer);
@@ -57,11 +57,11 @@ elf_read_file(EFI_FILE_PROTOCOL * const file, Elf_Hdr **headerBuffer,
 	UINTN programHeaderOffset = (*headerBuffer)->e_phoff;
 	bufferReadSize = sizeof(Elf_Phdr) * (*headerBuffer)->e_phnum;
 
-	status = file->setPosition(file, programHeaderOffset);
+	status = file->SetPosition(file, programHeaderOffset);
 	efi_assert(status, L"elf:read_file:programHeader:SetPosition");
 
 	status = BOOT_SERVICES->AllocatePool(EfiLoaderData, bufferReadSize,
-		programHeaderBuffer);
+		(void **)programHeaderBuffer);
 	efi_assert(status, L"elf:read_file:programHeader:AllocatePool");
 
 	status = file->Read(file, &bufferReadSize, *programHeaderBuffer);
@@ -74,8 +74,8 @@ elf_free(Elf_Hdr *headerBuffer, Elf_Phdr *programHeaderBuffer)
 	EFI_STATUS status;
 
 	status = BOOT_SERVICES->FreePool(headerBuffer);
-	efi_assert(status, "elf:free:headerBuffer");
+	efi_assert(status, L"elf:free:headerBuffer");
 
 	status = BOOT_SERVICES->FreePool(programHeaderBuffer);
-	efi_assert(status, "elf:free:programHeaderBuffer");
+	efi_assert(status, L"elf:free:programHeaderBuffer");
 }

@@ -7,6 +7,7 @@
 #define TARGET_SCREEN_WIDTH	800
 #define TARGET_SCREEN_HEIGHT	600
 #define TARGET_PIXEL_FORMAT	PixelBlueGreenRedReserved8BitPerColor
+
 /*
  * Whether to draw a test pattern to video output to test the graphics output
  * service.
@@ -28,9 +29,8 @@ get_memory_map(EFI_MEMORY_DESCRIPTOR **memoryMap, UINTN *memoryMapSize,
 	 * required buffer size.
 	 */
 #ifdef DEBUG
-	if (EFI_ERROR(status) && status != EFI_BUFFER_TOO_SMALL){
+	if (EFI_ERROR(status) && status != EFI_BUFFER_TOO_SMALL)
 		err_handle(status, L"main:get_memory_map:1");
-	}
 #endif
 
 	/*
@@ -41,7 +41,7 @@ get_memory_map(EFI_MEMORY_DESCRIPTOR **memoryMap, UINTN *memoryMapSize,
 	*memoryMapSize += 2 * (*descriptorSize);
 
 	status = BOOT_SERVICES->AllocatePool(EfiLoaderData, *memoryMapSize,
-		memoryMap);
+		(void **)memoryMap);
 	efi_assert(status, L"main:get_memory_map:AllocatePool");
 
 	status = BOOT_SERVICES->GetMemoryMap(memoryMapSize, *memoryMap,
@@ -84,10 +84,10 @@ efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable)
 	kernelEntryPoint = load_kernel(root, KERNEL_EXECUTABLE_PATH);
 
 	// Set kernel video info
-	boot.videoModeInfo.framebufferPointer = gop->Mode->FrameBufferBase;
-	boot.videoModeInfo.horizontalRes = gop->Mode->Info->HorizontalResolution;
-	boot.videoModeInfo.verticalRes = gop->Mode->Info->VerticalResolution;
-	boot.videoModeInfo.pixelsPerScanline = gop->Mode->Info->PixelsPerScanLine;
+	info.videoModeInfo.framebufferPointer = gop->Mode->FrameBufferBase;
+	info.videoModeInfo.horizontalRes = gop->Mode->Info->HorizontalResolution;
+	info.videoModeInfo.verticalRes = gop->Mode->Info->VerticalResolution;
+	info.videoModeInfo.pixelsPerScanline = gop->Mode->Info->PixelsPerScanLine;
 
 	get_memory_map(&memoryMap, &memoryMapSize, &memoryMapKey,
 		&descriptorSize, &descriptorVersion);
@@ -95,16 +95,16 @@ efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable)
 	status = BOOT_SERVICES->ExitBootServices(ImageHandle, memoryMapKey);
 	efi_assert(status, L"main:ExitBootServices");
 
-	// Set kernel info
-	boot.memoryMap = memoryMap;
-	boot.memoryMapSize = memoryMapSize;
-	boot.memoryMapDescriptorSize = descriptorSize;
+	// Set boot info
+	info.memoryMap = memoryMap;
+	info.memoryMapSize = memoryMapSize;
+	info.memoryMapDescriptorSize = descriptorSize;
 
 	// Cast pointer to kernel entry.
-	kernel_entry = (void (*)(Boot_Info *))*kernelEntryPoint;
+	kernel_entry = (void (*)(Boot_Info *))kernelEntryPoint;
 	// Jump to kernel entry.
 	kernel_entry(&info);
 
 	// Return an error if this code is ever reached.
-	return LOAD_ERROR;
+	return EFI_LOAD_ERROR;
 }

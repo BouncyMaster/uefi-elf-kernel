@@ -15,8 +15,8 @@
  */
 static void
 load_segment(EFI_FILE_PROTOCOL * const file, const UINT64 offset,
-	const UINT64 fileSize, const UINT64 memorySize,
-	const UINT64 physicalAddress);
+	UINTN fileSize, const UINTN memorySize,
+	EFI_PHYSICAL_ADDRESS physicalAddress)
 {
 	EFI_STATUS status;
 	// Buffer to hold the segment data
@@ -25,43 +25,41 @@ load_segment(EFI_FILE_PROTOCOL * const file, const UINT64 offset,
 	UINTN pageCount = EFI_SIZE_TO_PAGES((UINTN)memorySize);
 
 	status = file->SetPosition(file, offset);
-	efi_assert(status, "load:segment:SetPosition");
+	efi_assert(status, L"load:segment:SetPosition");
 
 	status = BOOT_SERVICES->AllocatePages(AllocateAddress, EfiLoaderData,
 		pageCount, &physicalAddress);
-	efi_assert(status, "load:segment:AllocatePages");
+	efi_assert(status, L"load:segment:AllocatePages");
 
 #ifdef DEBUG
 	// TODO: is the check needed?
 	if (!fileSize)
-		err_handle(EFI_LOAD_ERROR, "load:segment:fileSize");
+		err_handle(EFI_LOAD_ERROR, L"load:segment:fileSize");
 #endif
 
 	status = BOOT_SERVICES->AllocatePool(EfiLoaderCode, fileSize,
 		&programData);
-	efi_assert(status, "load:segment:AllocatePool");
+	efi_assert(status, L"load:segment:AllocatePool");
 
 	status = file->Read(file, &fileSize, programData);
-	efi_assert(status, "load:segment:Read");
+	efi_assert(status, L"load:segment:Read");
 
-	BOOT_SERVICES->CopyMem(physicalAddress, programData, fileSize);
-	efi_assert(status, "load:segment:CopyMem");
+	BOOT_SERVICES->CopyMem((void *)physicalAddress, programData, fileSize);
+	efi_assert(status, L"load:segment:CopyMem");
 
 	status = BOOT_SERVICES->FreePool(programData);
-	efi_assert(status, "load:segment:FreePool");
+	efi_assert(status, L"load:segment:FreePool");
 
 	/*
 	 * As per ELF Standard, if the size in memory is larger than the file
 	 * size the segment is mandated to be zero filled.
 	 * For more information on Refer to ELF standard page 34.
 	 */
-	UINT64 zeroFillStart = physicalAddress + fileSize;
-	UINT64 zeroFillCount = memorySize - fileSize;
+	EFI_PHYSICAL_ADDRESS zeroFillStart = physicalAddress + fileSize;
+	UINTN zeroFillCount = memorySize - fileSize;
 
-	if (zeroFillCount > 0){
-		status = BOOT_SERVICES->SetMem(zeroFillStart, zeroFillCount, 0);
-		efi_assert(status, "load:segment:SetMem");
-	}
+	if (zeroFillCount > 0)
+		BOOT_SERVICES->SetMem((void *)zeroFillStart, zeroFillCount, 0);
 }
 
 /*
@@ -75,7 +73,6 @@ static void
 load_program_segments(EFI_FILE_PROTOCOL * const file,
 	Elf_Hdr * const headerBuffer, Elf_Phdr * const programHeaderBuffer)
 {
-	EFI_STATUS status;
 	UINT16 nSegmentsLoaded = 0;
 	const UINT16 nProgramHeaders = headerBuffer->e_phnum;
 
@@ -111,7 +108,7 @@ load_kernel(EFI_FILE_PROTOCOL * const root, CHAR16 * const filename)
 
 	status = root->Open(root, &file, filename, EFI_FILE_MODE_READ,
 		EFI_FILE_READ_ONLY);
-	efi_assert(status, "load:kernel:Open");
+	efi_assert(status, L"load:kernel:Open");
 
 #ifdef DEBUG
 	elf_validate(file);
@@ -126,7 +123,7 @@ load_kernel(EFI_FILE_PROTOCOL * const root, CHAR16 * const filename)
 	load_program_segments(file, kernelHeader, kernelProgramHeaders);
 
 	status = file->Close(file);
-	efi_assert(status, "load:kernel:Close");
+	efi_assert(status, L"load:kernel:Close");
 
 	elf_free(kernelHeader, kernelProgramHeaders);
 
