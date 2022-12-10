@@ -1,107 +1,134 @@
 #include "efilib.h"
+#include "elf.h"
 
-void
-load_kernel(EFI_FILE_PROTOCOL * const root, CHAR16 * const filename,
-	EFI_PHYSICAL_ADDRESS *entryPoint)
+/*
+ * @brief Loads an ELF segment.
+ * Loads an ELF program segment into memory.
+ * This will read the ELF segment from the kernel binary, allocate the pages
+ * necessary to load the segment into memory and then copy the segment to its
+ * required physical memory address.
+ * @param[in] file		The Kernel EFI file entity to read from.
+ * @param[in] offset		The segment's offset into the ELF binary.
+ * @param[in] fileSize		The segment's size in the ELF binary.
+ * @param[in] memorySize	The size of the segment loaded into memory.
+ * @param[in] physicalAddress	The physical memory address to load the segment to.
+ */
+static void
+load_segment(EFI_FILE_PROTOCOL * const file, const UINT64 offset,
+	const UINT64 fileSize, const UINT64 memorySize,
+	const UINT64 physicalAddress);
 {
 	EFI_STATUS status;
-	EFI_FILE_PROTOCOL *kernel;
+	// Buffer to hold the segment data
+	void *programData;
+	// The number of pages to allocate
+	UINTN pageCount = EFI_SIZE_TO_PAGES((UINTN)memorySize);
 
-	void *kernelHeader = 0; // Don't initialize to 0?
-	void *kernelProgramHeaders = 0;
+	status = file->SetPosition(file, offset);
+	efi_assert(status, "load:segment:SetPosition");
 
-	UINT8 *elfIdentityBuffer = 0;
-	Elf_File_Class fileClass = ELF_FILE_CLASS_NONE; // Set as default?
+	status = BOOT_SERVICES->AllocatePages(AllocateAddress, EfiLoaderData,
+		pageCount, &physicalAddress);
+	efi_assert(status, "load:segment:AllocatePages");
 
-	status = uefi_call_wrapper(root_file_system->Open, 5,
-		root_file_system, &kernel_img_file, kernel_image_filename,
-		EFI_FILE_MODE_READ, EFI_FILE_READ_ONLY);
-	if(check_for_fatal_error(status, L"Error opening kernel file")) {
-		return status;
+#ifdef DEBUG
+	// TODO: is the check needed?
+	if (!fileSize)
+		err_handle(EFI_LOAD_ERROR, "load:segment:fileSize");
+#endif
+
+	status = BOOT_SERVICES->AllocatePool(EfiLoaderCode, fileSize,
+		&programData);
+	efi_assert(status, "load:segment:AllocatePool");
+
+	status = file->Read(file, &fileSize, programData);
+	efi_assert(status, "load:segment:Read");
+
+	BOOT_SERVICES->CopyMem(physicalAddress, programData, fileSize);
+	efi_assert(status, "load:segment:CopyMem");
+
+	status = BOOT_SERVICES->FreePool(programData);
+	efi_assert(status, "load:segment:FreePool");
+
+	/*
+	 * As per ELF Standard, if the size in memory is larger than the file
+	 * size the segment is mandated to be zero filled.
+	 * For more information on Refer to ELF standard page 34.
+	 */
+	UINT64 zeroFillStart = physicalAddress + fileSize;
+	UINT64 zeroFillCount = memorySize - fileSize;
+
+	if (zeroFillCount > 0){
+		status = BOOT_SERVICES->SetMem(zeroFillStart, zeroFillCount, 0);
+		efi_assert(status, "load:segment:SetMem");
+	}
+}
+
+/*
+ * @brief Loads the ELF program segments.
+ * Loads the Kernel ELF binary's program segments into memory.
+ * @param[in] file			The Kernel EFI file entity to read from.
+ * @param[in] headerBuffer		The Kernel header buffer.
+ * @param[in] programHeaderBuffer	The kernel program headers buffer.
+ */
+static void
+load_program_segments(EFI_FILE_PROTOCOL * const file,
+	Elf_Hdr * const headerBuffer, Elf_Phdr * const programHeaderBuffer)
+{
+	EFI_STATUS status;
+	UINT16 nSegmentsLoaded = 0;
+	const UINT16 nProgramHeaders = headerBuffer->e_phnum;
+
+	for (UINT16 p = 0; p < nProgramHeaders; p++){
+		if (programHeaderBuffer[p].p_type == PT_LOAD){
+			load_segment(file,
+				programHeaderBuffer[p].p_offset,
+				programHeaderBuffer[p].p_filesz,
+				programHeaderBuffer[p].p_memsz,
+				programHeaderBuffer[p].p_paddr);
+
+			nSegmentsLoaded++;
+		}
 	}
 
-	// Read ELF Identity.
-	// From here we can validate the ELF executable, as well as determine the
-	// file class.
-	status = read_elf_identity(kernel_img_file, &elf_identity_buffer);
-	if(check_for_fatal_error(status, L"Error reading executable identity")) {
-		return status;
-	}
+#ifdef DEBUG
+	if (!nProgramHeaders)
+		err_handle(EFI_LOAD_ERROR, L"load:program_segments:phnum");
+	else if (!nSegmentsLoaded)
+		err_handle(EFI_LOAD_ERROR, L"load:program_segments:loadnum");
+#endif
+}
 
-	file_class = elf_identity_buffer[EI_CLASS];
+EFI_PHYSICAL_ADDRESS
+load_kernel(EFI_FILE_PROTOCOL * const root, CHAR16 * const filename)
+{
+	EFI_STATUS status;
+	EFI_FILE_PROTOCOL *file;
+	EFI_PHYSICAL_ADDRESS entryPoint;
 
-	// Validate the ELF file.
-	status = validate_elf_identity(elf_identity_buffer);
-	if(EFI_ERROR(status)) {
-		// Error message printed in validation function.
-		return status;
-	}
+	Elf_Hdr		*kernelHeader;
+	Elf_Phdr	*kernelProgramHeaders;
 
-	#ifdef DEBUG
-		debug_print_line(L"Debug: ELF header is valid\n");
-	#endif
+	status = root->Open(root, &file, filename, EFI_FILE_MODE_READ,
+		EFI_FILE_READ_ONLY);
+	efi_assert(status, "load:kernel:Open");
 
-	// Free identity buffer.
-	status = uefi_call_wrapper(gBS->FreePool, 1, elf_identity_buffer);
-	if(check_for_fatal_error(status, L"Error freeing kernel identity buffer")) {
-		return status;
-	}
-
+#ifdef DEBUG
+	elf_validate(file);
+#endif
 
 	// Read the ELF file and program headers.
-	status = read_elf_file(kernel_img_file, file_class,
-		&kernel_header, &kernel_program_headers);
-	if(check_for_fatal_error(status, L"Error reading ELF file")) {
-		return status;
-	}
-
-	#ifdef DEBUG
-		print_elf_file_info(kernel_header, kernel_program_headers);
-	#endif
+	elf_read_file(file, &kernelHeader, &kernelProgramHeaders);
 
 	// Set the kernel entry point to the address specified in the ELF header.
-	if(file_class == ELF_FILE_CLASS_32) {
-		*kernel_entry_point = ((Elf32_Ehdr*)kernel_header)->e_entry;
-	} else if(file_class == ELF_FILE_CLASS_64) {
-		*kernel_entry_point = ((Elf64_Ehdr*)kernel_header)->e_entry;
-	}
+	entryPoint = kernelHeader->e_entry;
 
-	status = load_program_segments(kernel_img_file, file_class,
-		kernel_header, kernel_program_headers);
-	if(EFI_ERROR(status)) {
-		// In the case that loading the kernel segments failed, the error message will
-		// have already been printed.
-		return status;
-	}
+	load_program_segments(file, kernelHeader, kernelProgramHeaders);
 
-	// Cleanup.
-	#ifdef DEBUG
-		debug_print_line(L"Debug: Closing kernel binary\n");
-	#endif
+	status = file->Close(file);
+	efi_assert(status, "load:kernel:Close");
 
-	status = uefi_call_wrapper(kernel_img_file->Close, 1, kernel_img_file);
-	if(check_for_fatal_error(status, L"Error closing kernel image")) {
-		return status;
-	}
+	elf_free(kernelHeader, kernelProgramHeaders);
 
-	#ifdef DEBUG
-		debug_print_line(L"Debug: Freeing kernel header buffer\n");
-	#endif
-
-	status = uefi_call_wrapper(gBS->FreePool, 1, (VOID*)kernel_header);
-	if(check_for_fatal_error(status, L"Error freeing kernel header buffer")) {
-		return status;
-	}
-
-	#ifdef DEBUG
-		debug_print_line(L"Debug: Freeing kernel program header buffer\n");
-	#endif
-
-	status = uefi_call_wrapper(gBS->FreePool, 1, (VOID*)kernel_program_headers);
-	if(check_for_fatal_error(status, L"Error freeing kernel program headers buffer")) {
-		return status;
-	}
-
-
-	return status;
+	return entryPoint;
 }

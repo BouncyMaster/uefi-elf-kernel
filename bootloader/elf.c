@@ -6,7 +6,8 @@ void
 elf_validate(EFI_FILE_PROTOCOL * const file)
 {
 	UINTN bufferReadSize = EI_NIDENT;
-	/* NOTE: if we get an error when reading into this, probably we need
+	/*
+	 * NOTE: if we get an error when reading into this, probably we need
 	 * to allocate with AllocatePool();
 	 */
 	UINT8 buffer[EI_NIDENT];
