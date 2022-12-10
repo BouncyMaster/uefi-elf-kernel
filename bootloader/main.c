@@ -22,24 +22,15 @@ get_memory_map(void **memoryMap, UINTN *memoryMapSize, UINTN *memoryMapKey,
 
 	status = BOOT_SERVICES->GetMemoryMap(memoryMapSize, *memoryMap,
 		memoryMapKey, descriptorSize, descriptorVersion);
-	efi_assert(status, "main:get_memory_map:1");
 	/*
-	if(EFI_ERROR(status)) {
-		// This will always fail on the first attempt, this call will return the
-		// required buffer size.
-		if(status != EFI_BUFFER_TOO_SMALL) {
-			debug_print_line(L"Fatal Error: Error getting memory map size: %s\n",
-				get_efi_error_message(status));
-
-			#if PROMPT_FOR_INPUT_BEFORE_REBOOT_ON_FATAL_ERROR
-				debug_print_line(L"Press any key to reboot...");
-				wait_for_input(&input_key);
-			#endif
-
-			return status;
-		}
+	 * This will always fail on the first attempt, this call will return the
+	 * required buffer size.
+	 */
+#ifdef DEBUG
+	if (EFI_ERROR(status) && status != EFI_BUFFER_TOO_SMALL){
+		err_handle(status, L"main:get_memory_map:1");
 	}
-	*/
+#endif
 
 	/*
 	 * According to: https://stackoverflow.com/a/39674958/5931673
