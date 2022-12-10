@@ -23,10 +23,10 @@ rel_bootloader: $(BOOTLOADER_SRC)
 	$(BOOTLOADER_CC) -o drive/$(BOOTLOADER_BIN) $(BOOTLOADER_SRC) $(BOOTLOADER_CFLAGS) $(REL_CFLAGS) $(BOOTLOADER_INCS)
 
 dbg_kernel: $(KERNEL_SRC)
-	$(KERNEL_CC) -o drive/$(KERNEL_BIN) $(KERNEL_SRC) $(KERNEL_CFLAGS) $(DBG_CFLAGS) $(KERNEL_INCS)
+	$(KERNEL_CC) -T kernel/kernel.ld -o drive/$(KERNEL_BIN) $(KERNEL_SRC) $(KERNEL_CFLAGS) $(DBG_CFLAGS) $(KERNEL_INCS)
 
 rel_kernel: $(KERNEL_SRC)
-	$(KERNEL_CC) -o drive/$(KERNEL_BIN) $(KERNEL_SRC) $(KERNEL_CFLAGS) $(REL_CFLAGS) $(KERNEL_INCS)
+	$(KERNEL_CC) -T kernel/kernel.ld -o drive/$(KERNEL_BIN) $(KERNEL_SRC) $(KERNEL_CFLAGS) $(REL_CFLAGS) $(KERNEL_INCS)
 
 tags:
 	cd bootloader && ctags -R . && cd ..
