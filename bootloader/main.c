@@ -1,22 +1,23 @@
 #include "efilib.h"
 #include "graphics.h"
 #include "fs.h"
+#include "loader.h"
+#include "kernel.h"
 
 #define TARGET_SCREEN_WIDTH	800
 #define TARGET_SCREEN_HEIGHT	600
 #define TARGET_PIXEL_FORMAT	PixelBlueGreenRedReserved8BitPerColor
-
-#define KERNEL_EXECUTABLE_PATH	L"\\kernel.elf"
-
 /*
  * Whether to draw a test pattern to video output to test the graphics output
  * service.
  */
 #define DRAW_TEST_SCREEN 0
 
+#define KERNEL_EXECUTABLE_PATH L"\\kernel.elf"
+
 static void
-get_memory_map(void **memoryMap, UINTN *memoryMapSize, UINTN *memoryMapKey,
-	UINTN *descriptorSize, UINT32 *descriptorVersion)
+get_memory_map(EFI_MEMORY_DESCRIPTOR **memoryMap, UINTN *memoryMapSize,
+	UINTN *memoryMapKey, UINTN *descriptorSize, UINT32 *descriptorVersion)
 {
 	EFI_STATUS status;
 
@@ -41,11 +42,11 @@ get_memory_map(void **memoryMap, UINTN *memoryMapSize, UINTN *memoryMapKey,
 
 	status = BOOT_SERVICES->AllocatePool(EfiLoaderData, *memoryMapSize,
 		memoryMap);
-	efi_assert(status, "main:get_memory_map:AllocatePool");
+	efi_assert(status, L"main:get_memory_map:AllocatePool");
 
 	status = BOOT_SERVICES->GetMemoryMap(memoryMapSize, *memoryMap,
 		memoryMapKey, descriptorSize, descriptorVersion);
-	efi_assert(status, "main:get_memory_map:2");
+	efi_assert(status, L"main:get_memory_map:2");
 }
 
 EFI_STATUS
@@ -54,8 +55,17 @@ efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable)
 	EFI_STATUS status;
 	EFI_GRAPHICS_OUTPUT_PROTOCOL *gop;
 	EFI_SIMPLE_FILE_SYSTEM_PROTOCOL *fsp;
+
+	EFI_MEMORY_DESCRIPTOR *memoryMap;
+	UINTN	memoryMapSize, memoryMapKey, descriptorSize;
+	UINT32	descriptorVersion;
+
 	EFI_FILE_PROTOCOL *root;
 	EFI_PHYSICAL_ADDRESS kernelEntryPoint;
+	// Function pointer to the kernel entry point
+	void (*kernel_entry)(Kernel_Info* bootInfo);
+	// Passed to the kernel
+	Kernel_Info info;
 
 	// Sets global EFI table variables
 	efi_init(ImageHandle, SystemTable);
@@ -77,5 +87,28 @@ efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable)
 
 	kernelEntryPoint = load_kernel(root, KERNEL_EXECUTABLE_PATH);
 
-	return EFI_SUCCESS;
+	// Set kernel video info
+	boot.videoModeInfo.framebufferPointer = gop->Mode->FrameBufferBase;
+	boot.videoModeInfo.horizontalRes = gop->Mode->Info->HorizontalResolution;
+	boot.videoModeInfo.verticalRes = gop->Mode->Info->VerticalResolution;
+	boot.videoModeInfo.pixelsPerScanline = gop->Mode->Info->PixelsPerScanLine;
+
+	get_memory_map(&memoryMap, &memoryMapSize, &memoryMapKey,
+		&descriptorSize, &descriptorVersion);
+
+	status = BOOT_SERVICES->ExitBootServices(ImageHandle, memoryMapKey);
+	efi_assert(status, L"main:ExitBootServices");
+
+	// Set kernel info
+	boot.memoryMap = memoryMap;
+	boot.memoryMapSize = memoryMapSize;
+	boot.memoryMapDescriptorSize = descriptorSize;
+
+	// Cast pointer to kernel entry.
+	kernel_entry = (void (*)(Kernel_Info *))*kernelEntryPoint;
+	// Jump to kernel entry.
+	kernel_entry(&info);
+
+	// Return an error if this code is ever reached.
+	return LOAD_ERROR;
 }
