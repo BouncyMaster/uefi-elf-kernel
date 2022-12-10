@@ -54,6 +54,16 @@ typedef struct {
 	UINT64	p_align;
 } Elf_Phdr;
 
+
+#ifdef DEBUG
+/*
+ * @brief Validates the ELF file identity.
+ * Reads and validates whether the ELF identity correctly identifies an ELF file.
+ * @param[in] file	The Kernel EFI file entity to read from.
+ */
+void elf_validate(EFI_FILE_PROTOCOL * const file);
+#endif
+
 /*
  * @brief Reads the ELF file headers.
  * Reads the ELF file header and program headers into memory.
@@ -62,26 +72,9 @@ typedef struct {
  * @param[out] programHeaderBuffer	The buffer to read the kernel program
  *					headers into.
  */
-void elf_read_file(EFI_FILE_PROTOCOL * const file, void **headerBuffer,
-	void **programHeaderBuffer);
+void elf_read_file(EFI_FILE_PROTOCOL * const file, Elf_Hdr **headerBuffer,
+	Elf_Phdr **programHeaderBuffer);
 
-#ifdef DEBUG
-/*
- * @brief Reads the identity buffer of an ELF file.
- * Reads the identity buffer from the ELF header, which is used to validate
- * that the file is a valid ELF executable.
- * @param[in] file	The kernel binary to read the file class from.
- *
- * @return The identity buffer.
- */
-UINT8 * elf_read_identity(EFI_FILE_PROTOCOL * const file);
-
-/*
- * @brief Validates the ELF file identity.
- * Validates whether the ELF identity correctly identifies an ELF file.
- * @param[in] buffer	The ELF identity buffer to validate.
- */
-void elf_validate(UINT8 * const buffer);
-#endif
+void elf_free(Elf_Hdr *headerBuffer, Elf_Phdr *programHeaderBuffer);
 
 #endif // ELF_H
