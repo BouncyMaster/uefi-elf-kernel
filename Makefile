@@ -7,7 +7,7 @@ BOOTLOADER_CFLAGS = -Wall -Wno-unused-but-set-variable -Wvla -Werror -m64 -mabi=
 BOOTLOADER_BIN = bootloader.efi
 
 KERNEL_CC = x86_64-elf-gcc
-BOOTLOADER_INCS = -Ikernel/include
+KERNEL_INCS = -Ikernel/include
 KERNEL_SRC = kernel/main.c kernel/graphics.c
 KERNEL_CFLAGS = -Wall -Wvla -Werror -ffreestanding -nostdlib \
 	-z max-page-size=0x1000
