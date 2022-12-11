@@ -8,12 +8,6 @@
 #define TARGET_SCREEN_HEIGHT	600
 #define TARGET_PIXEL_FORMAT	PixelBlueGreenRedReserved8BitPerColor
 
-/*
- * Whether to draw a test pattern to video output to test the graphics output
- * service.
- */
-#define DRAW_TEST_SCREEN 0
-
 #define KERNEL_EXECUTABLE_PATH L"\\kernel.elf"
 
 static void
@@ -22,12 +16,13 @@ get_memory_map(EFI_MEMORY_DESCRIPTOR **memoryMap, UINTN *memoryMapSize,
 {
 	EFI_STATUS status;
 
-	status = BOOT_SERVICES->GetMemoryMap(memoryMapSize, *memoryMap,
-		memoryMapKey, descriptorSize, descriptorVersion);
 	/*
 	 * This will always fail on the first attempt, this call will return the
 	 * required buffer size.
 	 */
+	status = BOOT_SERVICES->GetMemoryMap(memoryMapSize, *memoryMap,
+		memoryMapKey, descriptorSize, descriptorVersion);
+
 #ifdef DEBUG
 	if (EFI_ERROR(status) && status != EFI_BUFFER_TOO_SMALL)
 		err_handle(status, L"main:get_memory_map:1");
@@ -72,10 +67,6 @@ efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable)
 
 	gop = graphics_init(TARGET_SCREEN_WIDTH, TARGET_SCREEN_HEIGHT,
 		TARGET_PIXEL_FORMAT);
-
-	#if DRAW_TEST_SCREEN != 0
-		graphics_draw_test(gop);
-	#endif
 
 	fsp = fs_init();
 	status = fsp->OpenVolume(fsp, &root);
