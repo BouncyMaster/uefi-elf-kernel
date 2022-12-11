@@ -63,7 +63,7 @@ efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable)
 	EFI_FILE_PROTOCOL *root;
 	EFI_PHYSICAL_ADDRESS kernelEntryPoint;
 	// Function pointer to the kernel entry point
-	//void (*kernel_entry)(Boot_Info *bootInfo);
+	void (__attribute__((sysv_abi)) *kernel_entry)(Boot_Info *);
 	// Passed to the kernel
 	Boot_Info info;
 
@@ -104,7 +104,8 @@ efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable)
 	info.memoryMapDescriptorSize = descriptorSize;
 
 	// Cast pointer to kernel entry.
-	void (__attribute__((sysv_abi)) *kernel_entry)(Boot_Info *) = ((__attribute__((sysv_abi)) void (*)(Boot_Info *)) kernelEntryPoint);
+	kernel_entry = ((__attribute__((sysv_abi)) void (*)(Boot_Info *))
+			kernelEntryPoint);
 	// Jump to kernel entry.
 	kernel_entry(&info);
 

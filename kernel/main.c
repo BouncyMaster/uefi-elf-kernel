@@ -45,4 +45,6 @@ kernel_main(Boot_Info *info)
 	#if DRAW_TEST_SCREEN
 		draw_test_screen(info);
 	#endif
+
+	for (;;);
 }
