@@ -3,48 +3,46 @@
 #include <bool.h>
 #include <int.h>
 #include "kernel.h"
-#include "graphics.h"
 
-#define TEST_SCREEN_COL_NUM             4
-#define TEST_SCREEN_ROW_NUM             3
-#define TEST_SCREEN_TOTAL_TILES         TEST_SCREEN_COL_NUM * TEST_SCREEN_ROW_NUM
 #define TEST_SCREEN_PRIMARY_COLOR       0x00FF40FF
-#define TEST_SCREEN_SECONDARY_COLOR     0x00FF00CF
+#define TEST_SCREEN_SECONDARY_COLOR     0x00FFFFFF
 // Whether to draw a test pattern to video output.
 #define DRAW_TEST_SCREEN 1
 
-static void
-draw_test_screen(Boot_Info *info)
+void
+draw_rect(uint32 * const framebufferPointer, const uint32 pixelsPerScanline)
 {
-	const uint16 tileWidth = info->videoModeInfo.horizontalRes /
-		TEST_SCREEN_COL_NUM;
-	const uint16 tileHeight = info->videoModeInfo.verticalRes /
-		TEST_SCREEN_ROW_NUM;
+	// Pointer to the current pixel in the buffer
+	uint32 *at;
+	uint16 col = 0;
 
-	uint32 color;
+	for (uint16 row = 0; row < 10; row++){
+		for (col = 0; col < 10; col++){
+			at = framebufferPointer + 400;
+			at += (400 * pixelsPerScanline);
 
-	for (uint8 p = 0; p < TEST_SCREEN_TOTAL_TILES; p++){
-		uint8 x = p % TEST_SCREEN_COL_NUM;
-		uint8 y = p / TEST_SCREEN_COL_NUM;
-
-		if (((y % 2) + x) % 2)
-			color = TEST_SCREEN_SECONDARY_COLOR;
-		else
-			color = TEST_SCREEN_PRIMARY_COLOR;
-
-		draw_rect(info->videoModeInfo.framebufferPointer,
-			info->videoModeInfo.pixelsPerScanline,
-			tileWidth * x, tileHeight * y,
-			tileWidth, tileHeight, color);
+			*at = TEST_SCREEN_PRIMARY_COLOR;
+		}
 	}
 }
 
 void
 kernel_main(Boot_Info *info)
 {
-	#if DRAW_TEST_SCREEN
-		draw_test_screen(info);
-	#endif
+	//draw_rect(info->videoModeInfo.framebufferPointer,
+	//	info->videoModeInfo.pixelsPerScanline);
+
+	uint32 *at;
+	uint16 col = 0;
+
+	for (uint16 row = 0; row < 10; row++){
+		for (col = 0; col < 10; col++){
+			at = info->video.framebuffer + 400;
+			at += (400 * info->video.xRes);
+
+			*at = TEST_SCREEN_PRIMARY_COLOR;
+		}
+	}
 
 	for (;;);
 }

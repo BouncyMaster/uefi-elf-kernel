@@ -75,10 +75,9 @@ efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable)
 	kernelEntryPoint = load_kernel(root, KERNEL_EXECUTABLE_PATH);
 
 	// Set kernel video info
-	info.videoModeInfo.framebufferPointer = gop->Mode->FrameBufferBase;
-	info.videoModeInfo.horizontalRes = gop->Mode->Info->HorizontalResolution;
-	info.videoModeInfo.verticalRes = gop->Mode->Info->VerticalResolution;
-	info.videoModeInfo.pixelsPerScanline = gop->Mode->Info->PixelsPerScanLine;
+	info.video.framebuffer = gop->Mode->FrameBufferBase;
+	info.video.xRes = gop->Mode->Info->HorizontalResolution;
+	info.video.yRes = gop->Mode->Info->VerticalResolution;
 
 	get_memory_map(&memoryMap, &memoryMapSize, &memoryMapKey,
 		&descriptorSize, &descriptorVersion);

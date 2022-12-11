@@ -2,10 +2,9 @@
 #define KERNEL_H
 
 typedef struct {
-	EFI_PHYSICAL_ADDRESS	framebufferPointer;
-	UINT32			horizontalRes;
-	UINT32			verticalRes;
-	UINT32			pixelsPerScanline;
+	EFI_PHYSICAL_ADDRESS	framebuffer;
+	UINT32			xRes;
+	UINT32			yRes;
 } Video_Mode_Info;
 
 /*
@@ -18,7 +17,7 @@ typedef struct {
 	EFI_MEMORY_DESCRIPTOR	*memoryMap;
 	UINTN			 memoryMapSize;
 	UINTN			 memoryMapDescriptorSize;
-	Video_Mode_Info		 videoModeInfo;
+	Video_Mode_Info		 video;
 } Boot_Info;
 
 #endif // KERNEL_H

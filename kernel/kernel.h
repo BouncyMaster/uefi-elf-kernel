@@ -18,10 +18,9 @@ typedef struct {
 } Memory_Map_Descriptor;
 
 typedef struct {
-	void	*framebufferPointer;
-	uint32	 horizontalRes;
-	uint32	 verticalRes;
-	uint32	 pixelsPerScanline;
+	uint32	*framebuffer;
+	uint32	 xRes;
+	uint32	 yRes;
 } Video_Mode_Info;
 
 /*
@@ -34,7 +33,7 @@ typedef struct {
 	Memory_Map_Descriptor	*memoryMap;
 	uint64			 memoryMapSize;
 	uint64			 memoryMapDescriptorSize;
-	Video_Mode_Info		 videoModeInfo;
+	Video_Mode_Info		 video;
 } Boot_Info;
 
 #endif // KERNEL_H

@@ -8,7 +8,7 @@ BOOTLOADER_BIN = bootloader.efi
 
 KERNEL_CC = x86_64-elf-gcc
 KERNEL_INCS = -Ikernel/include
-KERNEL_SRC = kernel/main.c kernel/graphics.c
+KERNEL_SRC = kernel/main.c
 KERNEL_CFLAGS = -Wall -Wvla -ffreestanding -nostdlib -T kernel/kernel.ld \
 	-z max-page-size=0x1000
 KERNEL_BIN = kernel.elf
