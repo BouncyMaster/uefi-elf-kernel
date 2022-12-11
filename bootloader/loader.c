@@ -19,8 +19,6 @@ load_segment(EFI_FILE_PROTOCOL * const file, const UINT64 offset,
 	EFI_PHYSICAL_ADDRESS physicalAddress)
 {
 	EFI_STATUS status;
-	// Buffer to hold the segment data
-	void *programData;
 	// The number of pages to allocate
 	UINTN pageCount = EFI_SIZE_TO_PAGES((UINTN)memorySize);
 
@@ -31,38 +29,20 @@ load_segment(EFI_FILE_PROTOCOL * const file, const UINT64 offset,
 		pageCount, &physicalAddress);
 	efi_assert(status, L"load:segment:AllocatePages");
 
-	/*
-#ifdef DEBUG
-	// TODO: is the check needed?
-	if (!fileSize)
-		err_handle(EFI_LOAD_ERROR, L"load:segment:fileSize");
-#endif
-	*/
-	if (fileSize > 0){
-		status = BOOT_SERVICES->AllocatePool(EfiLoaderCode, fileSize,
-			&programData);
-		efi_assert(status, L"load:segment:AllocatePool");
-
-		status = file->Read(file, &fileSize, programData);
-		efi_assert(status, L"load:segment:Read");
-
-		BOOT_SERVICES->CopyMem((void *)physicalAddress, programData, fileSize);
-		efi_assert(status, L"load:segment:CopyMem");
-
-		status = BOOT_SERVICES->FreePool(programData);
-		efi_assert(status, L"load:segment:FreePool");
-	}
+	status = file->Read(file, &fileSize, (void *)physicalAddress);
+	efi_assert(status, L"load:segment:Read");
 
 	/*
 	 * As per ELF Standard, if the size in memory is larger than the file
 	 * size the segment is mandated to be zero filled.
 	 * For more information on Refer to ELF standard page 34.
 	 */
-	EFI_PHYSICAL_ADDRESS zeroFillStart = physicalAddress + fileSize;
 	UINTN zeroFillCount = memorySize - fileSize;
 
-	if (zeroFillCount > 0)
+	if (zeroFillCount > 0){
+		EFI_PHYSICAL_ADDRESS zeroFillStart = physicalAddress + fileSize;
 		BOOT_SERVICES->SetMem((void *)zeroFillStart, zeroFillCount, 0);
+	}
 }
 
 /*
@@ -80,7 +60,8 @@ load_program_segments(EFI_FILE_PROTOCOL * const file,
 	const UINT16 nProgramHeaders = headerBuffer->e_phnum;
 
 	for (UINT16 p = 0; p < nProgramHeaders; p++){
-		if (programHeaderBuffer[p].p_type == PT_LOAD){
+		if ((programHeaderBuffer[p].p_type == PT_LOAD) &&
+				programHeaderBuffer[p].p_filesz){
 			load_segment(file,
 				programHeaderBuffer[p].p_offset,
 				programHeaderBuffer[p].p_filesz,

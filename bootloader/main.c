@@ -89,9 +89,6 @@ efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable)
 	info.videoModeInfo.verticalRes = gop->Mode->Info->VerticalResolution;
 	info.videoModeInfo.pixelsPerScanline = gop->Mode->Info->PixelsPerScanLine;
 
-	EFI_SIMPLE_TEXT_OUTPUT_PROTOCOL *conOut = SYSTEM_TABLE->ConOut;
-	conOut->OutputString(conOut, L"Reached before exit\r\n");
-
 	get_memory_map(&memoryMap, &memoryMapSize, &memoryMapKey,
 		&descriptorSize, &descriptorVersion);
 
