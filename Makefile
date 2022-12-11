@@ -9,7 +9,7 @@ BOOTLOADER_BIN = bootloader.efi
 KERNEL_CC = x86_64-elf-gcc
 KERNEL_INCS = -Ikernel/include
 KERNEL_SRC = kernel/main.c kernel/graphics.c
-KERNEL_CFLAGS = -Wall -Wvla -ffreestanding -nostdlib \
+KERNEL_CFLAGS = -Wall -Wvla -ffreestanding -nostdlib -T kernel/kernel.ld \
 	-z max-page-size=0x1000
 KERNEL_BIN = kernel.elf
 
@@ -23,10 +23,10 @@ rel_bootloader: $(BOOTLOADER_SRC)
 	$(BOOTLOADER_CC) -o drive/$(BOOTLOADER_BIN) $(BOOTLOADER_SRC) $(BOOTLOADER_CFLAGS) $(REL_CFLAGS) $(BOOTLOADER_INCS)
 
 dbg_kernel: $(KERNEL_SRC)
-	$(KERNEL_CC) -T kernel/kernel.ld -o drive/$(KERNEL_BIN) $(KERNEL_SRC) $(KERNEL_CFLAGS) $(DBG_CFLAGS) $(KERNEL_INCS)
+	$(KERNEL_CC) -o drive/$(KERNEL_BIN) $(KERNEL_SRC) $(KERNEL_CFLAGS) $(DBG_CFLAGS) $(KERNEL_INCS)
 
 rel_kernel: $(KERNEL_SRC)
-	$(KERNEL_CC) -T kernel/kernel.ld -o drive/$(KERNEL_BIN) $(KERNEL_SRC) $(KERNEL_CFLAGS) $(REL_CFLAGS) $(KERNEL_INCS)
+	$(KERNEL_CC) -o drive/$(KERNEL_BIN) $(KERNEL_SRC) $(KERNEL_CFLAGS) $(REL_CFLAGS) $(KERNEL_INCS)
 
 tags:
 	cd bootloader && ctags -R . && cd ..
