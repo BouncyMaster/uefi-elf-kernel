@@ -1,3 +1,5 @@
-drive/*
+drive/kernel.elf
+drive/bootloader.efi
+drive/NvVars
 bootloader/tags
 kernel/tags
