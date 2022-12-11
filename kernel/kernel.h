@@ -10,17 +10,17 @@
  * Describes a region of memory. This is passed to the kernel by the bootloader.
  */
 typedef struct {
-	uint32 type;
-	uint64 physical_start;
-	uint64 virtual_start;
-	uint64 count;
-	uint64 attributes;
+	u32 type;
+	u64 physical_start;
+	u64 virtual_start;
+	u64 count;
+	u64 attributes;
 } Memory_Map_Descriptor;
 
 typedef struct {
-	uint32	*framebuffer;
-	uint32	 xRes;
-	uint32	 yRes;
+	u32 *framebuffer;
+	u32  xRes;
+	u32  yRes;
 } Video_Mode_Info;
 
 /*
@@ -31,8 +31,8 @@ typedef struct {
  */
 typedef struct {
 	Memory_Map_Descriptor	*memoryMap;
-	uint64			 memoryMapSize;
-	uint64			 memoryMapDescriptorSize;
+	u64			 memoryMapSize;
+	u64			 memoryMapDescriptorSize;
 	Video_Mode_Info		 video;
 } Boot_Info;
 

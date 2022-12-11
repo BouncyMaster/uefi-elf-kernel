@@ -10,13 +10,13 @@
 #define DRAW_TEST_SCREEN 1
 
 void
-draw_rect(uint32 * const framebufferPointer, const uint32 pixelsPerScanline)
+draw_rect(u32 * const framebufferPointer, const u32 pixelsPerScanline)
 {
 	// Pointer to the current pixel in the buffer
-	uint32 *at;
-	uint16 col = 0;
+	u32 *at;
+	u16 col = 0;
 
-	for (uint16 row = 0; row < 10; row++){
+	for (u16 row = 0; row < 10; row++){
 		for (col = 0; col < 10; col++){
 			at = framebufferPointer + 400;
 			at += (400 * pixelsPerScanline);
@@ -32,10 +32,10 @@ kernel_main(Boot_Info *info)
 	//draw_rect(info->videoModeInfo.framebufferPointer,
 	//	info->videoModeInfo.pixelsPerScanline);
 
-	uint32 *at;
-	uint16 col = 0;
+	u32 *at;
+	u16 col = 0;
 
-	for (uint16 row = 0; row < 10; row++){
+	for (u16 row = 0; row < 10; row++){
 		for (col = 0; col < 10; col++){
 			at = info->video.framebuffer + 400;
 			at += (400 * info->video.xRes);
