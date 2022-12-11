@@ -87,8 +87,8 @@ load_kernel(EFI_FILE_PROTOCOL * const root, CHAR16 * const filename)
 	EFI_FILE_PROTOCOL *file;
 	EFI_PHYSICAL_ADDRESS entryPoint;
 
-	Elf_Hdr		*kernelHeader;
-	Elf_Phdr	*kernelProgramHeaders;
+	Elf_Hdr   kernelHeader;
+	Elf_Phdr *kernelProgramHeaders;
 
 	status = root->Open(root, &file, filename, EFI_FILE_MODE_READ,
 		EFI_FILE_READ_ONLY);
@@ -102,14 +102,14 @@ load_kernel(EFI_FILE_PROTOCOL * const root, CHAR16 * const filename)
 	elf_read_file(file, &kernelHeader, &kernelProgramHeaders);
 
 	// Set the kernel entry point to the address specified in the ELF header.
-	entryPoint = kernelHeader->e_entry;
+	entryPoint = kernelHeader.e_entry;
 
-	load_program_segments(file, kernelHeader, kernelProgramHeaders);
+	load_program_segments(file, &kernelHeader, kernelProgramHeaders);
 
 	status = file->Close(file);
 	efi_assert(status, L"load:kernel:Close");
 
-	elf_free(kernelHeader, kernelProgramHeaders);
+	elf_free(kernelProgramHeaders);
 
 	return entryPoint;
 }

@@ -6,10 +6,6 @@ void
 elf_validate(EFI_FILE_PROTOCOL * const file)
 {
 	UINTN bufferReadSize = EI_NIDENT;
-	/*
-	 * NOTE: if we get an error when reading into this, probably we need
-	 * to allocate with AllocatePool();
-	 */
 	UINT8 buffer[EI_NIDENT];
 	EFI_STATUS status;
 
@@ -20,8 +16,8 @@ elf_validate(EFI_FILE_PROTOCOL * const file)
 	status = file->Read(file, &bufferReadSize, buffer);
 	efi_assert(status, L"elf:validate:Read");
 
-	if ((buffer[EI_MAG0] != 0x7F) || (buffer[EI_MAG1] != 0x45) ||
-			(buffer[EI_MAG2] != 0x4C) || (buffer[EI_MAG3] != 0x46))
+	if ((buffer[EI_MAG0] != 0x7F) || (buffer[EI_MAG1] != 'E') ||
+			(buffer[EI_MAG2] != 'L') || (buffer[EI_MAG3] != 'F'))
 		err_handle(EFI_LOAD_ERROR, L"elf:validate:magic");
 
 	if (buffer[EI_CLASS] != ELF_FILE_CLASS_64)
@@ -33,7 +29,7 @@ elf_validate(EFI_FILE_PROTOCOL * const file)
 #endif
  
 void
-elf_read_file(EFI_FILE_PROTOCOL * const file, Elf_Hdr **headerBuffer,
+elf_read_file(EFI_FILE_PROTOCOL * const file, Elf_Hdr *headerBuffer,
 	Elf_Phdr **programHeaderBuffer)
 {
 	EFI_STATUS status;
@@ -45,17 +41,12 @@ elf_read_file(EFI_FILE_PROTOCOL * const file, Elf_Hdr **headerBuffer,
 	status = file->SetPosition(file, 0);
 	efi_assert(status, L"elf:read_file:header:SetPosition");
 
-	// TODO: use static alloc maybe
-	status = BOOT_SERVICES->AllocatePool(EfiLoaderData, bufferReadSize,
-		(void **)headerBuffer);
-	efi_assert(status, L"elf:read_file:header:AllocatePool");
-
-	status = file->Read(file, &bufferReadSize, *headerBuffer);
+	status = file->Read(file, &bufferReadSize, headerBuffer);
 	efi_assert(status, L"elf:read_file:header:Read");
 
 	// Read program header
-	UINTN programHeaderOffset = (*headerBuffer)->e_phoff;
-	bufferReadSize = sizeof(Elf_Phdr) * (*headerBuffer)->e_phnum;
+	UINTN programHeaderOffset = headerBuffer->e_phoff;
+	bufferReadSize = sizeof(Elf_Phdr) * headerBuffer->e_phnum;
 
 	status = file->SetPosition(file, programHeaderOffset);
 	efi_assert(status, L"elf:read_file:programHeader:SetPosition");
@@ -69,12 +60,9 @@ elf_read_file(EFI_FILE_PROTOCOL * const file, Elf_Hdr **headerBuffer,
 }
 
 void
-elf_free(Elf_Hdr *headerBuffer, Elf_Phdr *programHeaderBuffer)
+elf_free(Elf_Phdr *programHeaderBuffer)
 {
 	EFI_STATUS status;
-
-	status = BOOT_SERVICES->FreePool(headerBuffer);
-	efi_assert(status, L"elf:free:headerBuffer");
 
 	status = BOOT_SERVICES->FreePool(programHeaderBuffer);
 	efi_assert(status, L"elf:free:programHeaderBuffer");

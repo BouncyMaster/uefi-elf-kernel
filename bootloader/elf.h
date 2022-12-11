@@ -72,9 +72,9 @@ void elf_validate(EFI_FILE_PROTOCOL * const file);
  * @param[out] programHeaderBuffer	The buffer to read the kernel program
  *					headers into.
  */
-void elf_read_file(EFI_FILE_PROTOCOL * const file, Elf_Hdr **headerBuffer,
+void elf_read_file(EFI_FILE_PROTOCOL * const file, Elf_Hdr *headerBuffer,
 	Elf_Phdr **programHeaderBuffer);
 
-void elf_free(Elf_Hdr *headerBuffer, Elf_Phdr *programHeaderBuffer);
+void elf_free(Elf_Phdr *programHeaderBuffer);
 
 #endif // ELF_H
