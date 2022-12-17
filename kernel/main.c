@@ -9,7 +9,7 @@
 
 extern ssfn_font_t _binary_font_sfn_start;
 
-void
+static void
 puts(char *s)
 {
 	while (*s)
@@ -27,7 +27,7 @@ kernel_main(Boot_Info *info)
 	ssfn_dst.ptr = (u8 *)info->video.framebuffer;
 	ssfn_dst.w = info->video.xRes;
 	ssfn_dst.h = info->video.yRes;
-	ssfn_dst.p = 3200;
+	ssfn_dst.p = info->video.xRes * 4; // 4 bytes per pixel
 	ssfn_dst.x = ssfn_dst.y = 0;
 	ssfn_dst.fg = 0xFFFFFF;
 
