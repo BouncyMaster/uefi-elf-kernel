@@ -10,6 +10,13 @@
 extern ssfn_font_t _binary_font_sfn_start;
 
 void
+puts(char *s)
+{
+	while (*s)
+		ssfn_putc(*s++);
+}
+
+void
 kernel_main(Boot_Info *info)
 {
 	u32 *at;
@@ -33,11 +40,7 @@ kernel_main(Boot_Info *info)
 		}
 	}
 
-	ssfn_putc('H');
-	ssfn_putc('e');
-	ssfn_putc('l');
-	ssfn_putc('l');
-	ssfn_putc('o');
+	puts("Hello");
 
 	for (;;);
 }
