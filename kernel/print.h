@@ -4,6 +4,7 @@
 #include "kernel.h"
 
 void print_init(Video_Mode_Info *video);
-void print_s(char *s);
+const char *to_str(u64 val);
+void print(const char *s);
 
 #endif // PRINT_H

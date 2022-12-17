@@ -1,13 +1,12 @@
+#include <int.h>
+
 #define SSFN_CONSOLEBITMAP_TRUECOLOR
 #include "ssfn.h"
 #include "kernel.h"
 
-/*
- * s - string
- * c - char
- */
-
 extern ssfn_font_t _binary_font_sfn_start;
+// This probably won't work with concurrency
+static char STR_OUT[20];
 
 void
 print_init(Video_Mode_Info *video)
@@ -22,9 +21,28 @@ print_init(Video_Mode_Info *video)
 	ssfn_dst.fg = 0xFFFFFF;
 }
 
+// Convert uint to string
+const char *
+to_str(u64 val)
+{
+	u8 size = 0;
+	u64 sizeTest = val;
+	while (sizeTest /= 10)
+		size++;
+
+	u8 index = 0;
+	do {
+		STR_OUT[size - index++] = val % 10 + '0';
+	} while (val /= 10);
+
+	STR_OUT[size + 1] = 0; 
+
+	return STR_OUT;
+}
+
 // Prints a string to the screen
 void
-print_s(char *s)
+print(const char *s)
 {
 	while (*s)
 		ssfn_putc(*s++);

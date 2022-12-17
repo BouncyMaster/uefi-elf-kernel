@@ -21,7 +21,8 @@ kernel_main(Boot_Info *info)
 	}
 
 	print_init(&info->video);
-	print_s("Hello");
+	print("Hello ");
+	print(to_str(3242342));
 
 	for (;;);
 }
