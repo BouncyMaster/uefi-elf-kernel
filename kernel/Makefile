@@ -1,6 +1,6 @@
 CC = x86_64-elf-gcc
 INCS = -Iinclude
-SRC = main.c
+SRC = main.c print.c
 CFLAGS = -Wall -Wvla -Wno-char-subscripts -ffreestanding -nostdlib \
 	-T kernel.ld -z max-page-size=0x1000
 BIN = ../drive/kernel.elf
