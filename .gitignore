@@ -3,3 +3,4 @@ drive/bootloader.efi
 drive/NvVars
 bootloader/tags
 kernel/tags
+kernel/font.o
