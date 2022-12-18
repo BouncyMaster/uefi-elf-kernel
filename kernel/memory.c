@@ -7,8 +7,8 @@ memory_get_size(Memory_Map_Descriptor *mMap, u64 mMapSize, u64 mMapDescSize)
 	Memory_Map_Descriptor *desc;
 	u64 memSize = 0;
 
-	for (u64 i = 0; i < mMapSize; i+=mMapDescSize){
-		desc = mMap + i;
+	for (u64 i = 0; i < mMapSize; i += mMapDescSize){
+		desc = (Memory_Map_Descriptor *)((u64)mMap + i);
 		memSize += desc->count * 4096;
 	}
 

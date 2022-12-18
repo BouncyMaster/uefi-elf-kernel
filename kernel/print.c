@@ -46,3 +46,10 @@ print(const char *s)
 	while (*s)
 		ssfn_putc(*s++);
 }
+
+void
+print_lf(void)
+{
+	ssfn_dst.y += 17;
+	ssfn_dst.x = 0;
+}

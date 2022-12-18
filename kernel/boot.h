@@ -11,8 +11,8 @@
  */
 typedef struct {
 	u32 type;
-	u64 physical_start;
-	u64 virtual_start;
+	void *physical_start;
+	void *virtual_start;
 	u64 count;
 	u64 attributes;
 } Memory_Map_Descriptor;
