@@ -5,7 +5,6 @@
 #include "boot.h"
 
 extern ssfn_font_t _binary_font_sfn_start;
-// This probably won't work with concurrency
 static char STR_OUT[20];
 
 void
@@ -23,7 +22,7 @@ print_init(Video_Mode_Info *video)
 
 // Convert uint to string
 const char *
-to_str(u64 val)
+u_to_str(u64 val)
 {
 	u8 size = 0;
 	u64 sizeTest = val;
