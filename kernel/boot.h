@@ -1,7 +1,7 @@
 // Contains definitions for boot structures.
 
-#ifndef KERNEL_H
-#define KERNEL_H
+#ifndef BOOT_H
+#define BOOT_H
 
 #include <int.h>
 
@@ -36,4 +36,4 @@ typedef struct {
 	Video_Mode_Info		 video;
 } Boot_Info;
 
-#endif // KERNEL_H
+#endif // BOOT_H

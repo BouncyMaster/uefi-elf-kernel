@@ -2,7 +2,7 @@
 
 #define SSFN_CONSOLEBITMAP_TRUECOLOR
 #include "ssfn.h"
-#include "kernel.h"
+#include "boot.h"
 
 extern ssfn_font_t _binary_font_sfn_start;
 // This probably won't work with concurrency

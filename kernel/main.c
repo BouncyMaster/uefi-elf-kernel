@@ -2,7 +2,7 @@
 
 #include <bool.h>
 #include <int.h>
-#include "kernel.h"
+#include "boot.h"
 #include "print.h"
 
 void
@@ -22,7 +22,7 @@ kernel_main(Boot_Info *info)
 
 	print_init(&info->video);
 	print("Hello ");
-	print(to_str(3242342));
+	print(to_str(1234));
 
 	for (;;);
 }
