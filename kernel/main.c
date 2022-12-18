@@ -2,8 +2,10 @@
 
 #include <bool.h>
 #include <int.h>
-#include "kernel.h"
+
+#include "boot.h"
 #include "print.h"
+#include "memory.h"
 
 void
 kernel_main(Boot_Info *info)
@@ -21,8 +23,10 @@ kernel_main(Boot_Info *info)
 	}
 
 	print_init(&info->video);
-	print("Hello ");
-	print(u_to_str(1234));
+	print("Size: ");
+	print(u_to_str(memory_get_size(info->memoryMap, info->memoryMapSize,
+		info->memoryMapDescriptorSize)));
+	print(" Bytes");
 
 	for (;;);
 }
