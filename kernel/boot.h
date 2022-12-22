@@ -11,11 +11,11 @@
  */
 typedef struct {
 	u32 type;
-	void *physical_start;
-	void *virtual_start;
-	u64 count;
-	u64 attributes;
-} Memory_Map_Descriptor;
+	void *physicalStart;
+	void *virtualStart;
+	u64 pageCount;
+	u64 attribute;
+} Memory_Descriptor;
 
 typedef struct {
 	u32 *framebuffer;
@@ -30,9 +30,9 @@ typedef struct {
  * portability of the implementation:
  */
 typedef struct {
-	Memory_Map_Descriptor	*memoryMap;
-	u64			 memoryMapSize;
-	u64			 memoryMapDescriptorSize;
+	Memory_Descriptor	*memoryMap;
+	u64			 memoryMapSize; // Total size
+	u64			 memoryMapDescriptorSize; // Size of 1 element
 	Video_Mode_Info		 video;
 } Boot_Info;
 
