@@ -24,6 +24,13 @@ typedef struct {
 } Video_Mode_Info;
 
 /*
+ * TODO: figure out why descriptor size is needed, we can simply use sizeof,
+ * unless they are different?
+ * Also, would it be possible to pass nr of entries from the bootloader
+ * (without division)?
+ */
+
+/*
  * @brief Boot info struct.
  * Contains information passed to the kernel at boot time.
  * This should be kept separate from the kernel implementation to improve the
@@ -32,7 +39,7 @@ typedef struct {
 typedef struct {
 	Memory_Descriptor	*memoryMap;
 	u64			 memoryMapSize; // Total size
-	u64			 memoryMapDescriptorSize; // Size of 1 element
+	u64			 memoryMapDescSize; // Size of 1 element
 	Video_Mode_Info		 video;
 } Boot_Info;
 

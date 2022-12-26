@@ -50,6 +50,6 @@ print(const char *s)
 void
 print_lf(void)
 {
-	ssfn_dst.y += 17;
+	ssfn_dst.y += 16;
 	ssfn_dst.x = 0;
 }

@@ -7,12 +7,10 @@ bitmap_set(u8 *bitmap, u64 index, bool value)
 	u64 byteIndex = index / 8;
 	u8 bitIndex = 0b10000000 >> (index % 8);
 
-	if (value){
+	if (value)
 		bitmap[byteIndex] |= bitIndex;
-	} else {
+	else
 		bitmap[byteIndex] &= ~bitIndex;
-	}
-	
 }
 
 bool
@@ -21,7 +19,7 @@ bitmap_get(u8 *bitmap, u64 index)
 	u64 byteIndex = index / 8;
 	u8 bitIndex = 0b10000000 >> (index % 8);
 
-	if (bitmap[byteIndex] & bitIndexer)
+	if (bitmap[byteIndex] & bitIndex)
 		return true;
 	return false;
 }
